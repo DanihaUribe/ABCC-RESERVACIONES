@@ -1,0 +1,18 @@
+| Método   | Ruta                      | Descripción                                                 | ¿Requiere JWT? | ¿Requiere autorización? |
+| -------- | ------------------------- | ----------------------------------------------------------- | -------------- | ----------------------- |
+| `POST`   | `/reservas`               | Crear una nueva reserva.                                    | No             | No                      |
+| `GET`    | `/reservas/:folio`        | Consultar estado de una reserva por folio.                  | No             | No                      |
+| `PUT`    | `/reservas/:folio`        | Modificar una reserva (solo administradores).               | Sí             | Administrador           |
+| `PUT`    | `/reservas/estado/:folio` | Aprobar o rechazar reserva (solo administradores).          | Sí             | Administrador           |
+| `DELETE` | `/reservas/:folio`        | Eliminar una reserva (solo administradores).                | Sí             | Administrador           |
+| `GET`    | `/disponibilidad/:fecha`  | Obtener disponibilidad de los espacios en una fecha.        | No             | No                      |
+| `POST`   | `/login`                  | Login para el portal de administración (autenticación).     | No             | No                      |
+| `GET`    | `/reservas`               | Ver todas las reservas realizadas.                          | Sí             | Administrador           |
+| `GET`    | `/reservas/:folio`        | Ver detalle de una reserva.                                 | Sí             | Administrador           |
+| `GET`    | `/historial/:folio`       | Ver historial de cambios de una reserva.                    | Sí             | Administrador           |
+
+
+| `POST`   | `/usuarios`               | Crear nuevos usuarios (empleados o administradores).        | Sí             | Administrador           |
+| `PUT`    | `/usuarios/:id`           | Modificar información de un usuario (solo administradores). | Sí             | Administrador           |
+| `DELETE` | `/usuarios/:id`           | Eliminar un usuario (solo administradores).                 | Sí             | Administrador           |
+

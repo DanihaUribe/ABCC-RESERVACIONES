@@ -1,0 +1,25 @@
+# Node.js dependencies
+/node_modules/
+
+# Archivos de entorno que contienen configuraciones sensibles
+.env
+
+# Archivos de logs
+*.log
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración del editor
+.vscode/
+.idea/
+
+# Archivos temporales de sistemas operativos
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Archivos de base de datos
+*.sql
+*.sqlite
