@@ -1,0 +1,24 @@
+//Inicializa un nuevo proyecto Node:
+npm init -y
+
+//Instala Express:
+npm install express
+
+
+//Crea el archivo index.js
+type nul > index.js
+
+
+//ejecutar para levantar servidor
+node index.js
+
+//instalar pg
+npm install pg
+
+
+//git
+git init
+git add .
+git commit -m "Primer commit: Proyecto inicial"
+git remote add origin https://gitlab.com/usuario/nombre_del_repositorio.git
+git push -u origin master

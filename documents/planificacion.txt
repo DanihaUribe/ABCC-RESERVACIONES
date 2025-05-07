@@ -1,18 +1,77 @@
-| Método   | Ruta                      | Descripción                                                 | ¿Requiere JWT? | ¿Requiere autorización? |
-| -------- | ------------------------- | ----------------------------------------------------------- | -------------- | ----------------------- |
-| `POST`   | `/reservas`               | Crear una nueva reserva.                                    | No             | No                      |
-| `GET`    | `/reservas/:folio`        | Consultar estado de una reserva por folio.                  | No             | No                      |
-| `PUT`    | `/reservas/:folio`        | Modificar una reserva (solo administradores).               | Sí             | Administrador           |
-| `PUT`    | `/reservas/estado/:folio` | Aprobar o rechazar reserva (solo administradores).          | Sí             | Administrador           |
-| `DELETE` | `/reservas/:folio`        | Eliminar una reserva (solo administradores).                | Sí             | Administrador           |
-| `GET`    | `/disponibilidad/:fecha`  | Obtener disponibilidad de los espacios en una fecha.        | No             | No                      |
-| `POST`   | `/login`                  | Login para el portal de administración (autenticación).     | No             | No                      |
-| `GET`    | `/reservas`               | Ver todas las reservas realizadas.                          | Sí             | Administrador           |
-| `GET`    | `/reservas/:folio`        | Ver detalle de una reserva.                                 | Sí             | Administrador           |
-| `GET`    | `/historial/:folio`       | Ver historial de cambios de una reserva.                    | Sí             | Administrador           |
+Tecnologías:
+API REST
+Frontend: Vue.js
+Backend: Node.js con Express
+Interfaz: Responsiva
+MVC (Modelo-Vista-Controlador) RESTful.
+microservicios (si es necesario para el momento)
+JWT (login)
+bcrypt (¿login?)
+
+npm install moment
 
 
-| `POST`   | `/usuarios`               | Crear nuevos usuarios (empleados o administradores).        | Sí             | Administrador           |
-| `PUT`    | `/usuarios/:id`           | Modificar información de un usuario (solo administradores). | Sí             | Administrador           |
-| `DELETE` | `/usuarios/:id`           | Eliminar un usuario (solo administradores).                 | Sí             | Administrador           |
+Plataforma para gestionar eventos internos.
+Los empleados pueden:
+- Registrar una nueva solicitud
+- Consultar reservas existentes y el estado de la solicitud
+- Visualizar la disponibilidad de los espacios en tiempo real (calendario de reservas)
+- Ver los espacios disponibles y su tamaño
+- Validar la disponibilidad en tiempo real
+- Opción de editar datos y generar folio
+
+Los administradores pueden:
+- Login con JWT
+- Ver todas las reservas solicitadas
+- Editar campos ( Espacio, hora, fecha y estado)
+- Ver historial de cambios de una reserva
+
+
+
+Portal Empleados
+- GET todas las reservas de por espacio y dia 
+- Imprimir las reservas por hora 
+
+    Paso 1 Seleccione un espacio
+    - GET todos los espacios y sus datos
+
+    Paso 2 Seleccione hora y fecha
+    - GET todas las reservas de por espacio y dia  (con hora de inicio y fin)
+    - Mostrar solo las fechas disponibles en el select
+    - Mostrar solo las horas disponibles en el select
+    - Mostrar solo las duraciones coherentes en el select
+
+    Paso 3 Datos del organizador
+    - añade su nombre
+    - añade la descripción del evento
+    - se trae los de mas datos preseleccionados 
+
+    Paso 4 Confirmar y solicitar
+    - POST verificar que la solicitud sea valida y guarda 
+
+Consultar
+- POST todos los datos de reservación por folio
+
+Portal de administradores
+POST /login (autenticación con JWT).
+GET /logout (cierre de sesión).
+
+    Tabla de gestionar
+    - GET a todas las reservas con todos sus datos
+    - PUT para cambiar el estado del folio
+    - GET para obtener el historial de un folio
+
+    Editar reservación por folio
+    - GET todas las reservas de por espacio y dia  
+    - PUT para cambiar el espacio por folio
+    - PUT para cambiar la fecha por folio
+    - PUT para cambiar la hora por folio
+    - POST para registrar el movimiento del folio
+
+    
+
+
+
+
+
 
