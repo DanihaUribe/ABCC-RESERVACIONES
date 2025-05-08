@@ -15,6 +15,16 @@ node index.js
 //instalar pg
 npm install pg
 
+// JWT BCRYPT
+npm install bcrypt jsonwebtoken
+
+//env
+npm install dotenv
+
+//para que se actualice solo
+npm install --save-dev nodemon
+
+
 
 //git
 git init

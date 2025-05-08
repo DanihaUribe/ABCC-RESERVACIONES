@@ -1,4 +1,5 @@
 const db = require('../config/db'); 
+
 const UserModel = {
 
   async findByUsername(username) {
@@ -20,6 +21,7 @@ const UserModel = {
     return result.rows[0];
   }
 
+  //delete?
 };
 
 module.exports = UserModel;

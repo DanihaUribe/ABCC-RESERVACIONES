@@ -23,3 +23,5 @@ yarn-error.log
 # Archivos de base de datos
 *.sql
 *.sqlite
+
+.env

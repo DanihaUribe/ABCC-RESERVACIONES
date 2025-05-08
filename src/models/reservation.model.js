@@ -11,32 +11,42 @@ verifyAvailability(venueId, date, startTime, endTime) — Verificar disponibilid
 
 */
 const moment = require('moment');
-const db = require('../confing/db');
+const db = require('../config/db');
+
+
 const ReservationModel = {
 
-    //trae una reservación por el folio
+    // Trae una reservación por el folio
     async getByFolio(folio) {
         const result = await db.query(`
-            SELECT * FROM reservation 
-            WHERE folio = 1$
-        `,[folio]);
-        return result.rows[0];
+            SELECT 
+                reservation.*, 
+                venue.name_venue AS venue_name  -- Seleccionamos el nombre del venue
+            FROM reservation
+            INNER JOIN venue ON reservation.venue_id = venue.venue_id  -- Hacemos el INNER JOIN
+            WHERE reservation.folio = $1  -- Utilizamos el parámetro $1 para evitar SQL Injection
+        `, [folio]);  // Reemplazamos 1$ con $1 como marcador de posición
+        return result.rows[0];  // Retornamos el primer resultado de la consulta
     },
 
     //trae las reservaciones que ya ocupan un espacio por dia y espacio
     async getByDateAndVenue(venueId, date) {
         const result = await db.query(`
-            SELECT folio, start_time, end_time, status, requester_name, description 
+            SELECT 
+                reservation.*, 
+                venue.name_venue AS venue_name
             FROM reservation
-            WHERE venue_id = $1
-            AND reservation_date = $2
-            AND status IN ('Pendiente', 'Aprobada')
-            ORDER BY start_time ASC
+            INNER JOIN venue ON reservation.venue_id = venue.venue_id
+            WHERE reservation.venue_id = $1
+            AND reservation.reservation_date = $2
+            AND reservation.status IN ('Pendiente', 'Aprobada')
+            ORDER BY reservation.start_time ASC
         `, [venueId, date]);
+
         return result.rows;
     },
 
-    //Crea una reservación y crea un folio RES-1-250506-1056 "RES- NUMERO DE LA RESERVACIÓN - YYMMDD - HHMM" 
+    // Crea una reservación y crea un folio RES-1-250506-1056 "RES- NUMERO DE LA RESERVACIÓN - YYMMDD - HHMM" 
     async create({ requesterName, venueId, reservationDate, startTime, endTime, status, description }) {
         const countResult = await db.query(`SELECT COUNT(*) FROM reservation`);
         const count = parseInt(countResult.rows[0].count) + 1;
@@ -55,9 +65,10 @@ const ReservationModel = {
             RETURNING *
         `, [folio, requesterName, venueId, reservationDate, startTime, endTime, status, description]);
     
-        return result.rows[0];
+        return result.rows[0];  // Retornamos la nueva reservación creada
     },
 
+    // Actualiza una reservación por folio (permite editar uno o varios campos)
     async updateReservationByFolio(folio, data) {
         const fields = [];
         const values = [];
@@ -79,35 +90,49 @@ const ReservationModel = {
         values.push(folio);
       
         const result = await db.query(query, values);
-        return result.rows[0];
+        return result.rows[0];  // Retornamos la reservación actualizada
     },
 
+    // Trae todas las reservaciones, excluyendo las canceladas
     async getAll() {
-        const result = await db.query(
-            "SELECT * FROM reservation WHERE status != $1",
-            ['Cancelada']
-        );
-        return result.rows;
+        const result = await db.query(`
+            SELECT 
+                reservation.*, 
+                venue.name_venue AS venue_name 
+            FROM reservation
+            INNER JOIN venue ON reservation.venue_id = venue.venue_id 
+            WHERE reservation.status != $1
+        `, ['Cancelada']);
+        return result.rows;  // Retornamos todas las reservaciones
     },
     
-    //verifica que halla espacio libre
-    async verifyAvailability(venueId, date, startTime, endTime) {
-        const query = `
-            SELECT * FROM reservation
-            WHERE venue_id = $1
-              AND reservation_date = $2
-              AND status != 'Cancelada'
-              AND (
-                  (start_time < $4 AND end_time > $3)
-              )
+    // Verifica que haya espacio libre en un venue para una fecha y rango de horas (no contamos esta si esta cancelada o rechazada)
+    async verifyAvailability(venueId, date, startTime, endTime, reservationId = null) {
+        let query = `
+        SELECT * FROM reservation
+        WHERE venue_id = $1
+          AND reservation_date = $2
+          AND status NOT IN ('Cancelada', 'Rechazada')
+          AND (
+              (start_time < $4 AND end_time > $3)
+          )
         `;
-        const values = [venueId, date, startTime, endTime];
+    
+        
+        // Si la actualización de una reserva está en curso, excluimos la propia reserva
+        if (reservationId) {
+            query += ` AND folio != $5`; // Añadimos una condición para excluir la reserva actual
+        }
+    
+        const values = reservationId ? [venueId, date, startTime, endTime, reservationId] : [venueId, date, startTime, endTime];
         const result = await db.query(query, values);
         
-        // Si hay resultados, significa que ya está ocupado
+        // Si hay resultados, significa que el espacio ya está ocupado
         return result.rows.length === 0;
-    },
+    }
     
-
+    
+    
 };
+
 module.exports = ReservationModel;

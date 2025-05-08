@@ -15,6 +15,18 @@ app.get('/', (req, res) => {
 const venueRoutes = require('./routes/venue.routes');
 app.use('/api', venueRoutes);
 
+// Importa las rutas de 'auth'
+const authRoutes = require('./routes/auth.routes');
+app.use('/api/auth', authRoutes);
+
+const changeHistoryRoutes = require('./routes/changeHistory.routes');
+app.use('/api', changeHistoryRoutes); // Esto lo convierte en /api/change-history
+
+const reservationRoutes = require('./routes/reservation.routes');
+app.use('/api/reservations', reservationRoutes);
+
+
+
 // Conexión a la base de datos
 const pool = require('./config/db');
 app.get('/test-db', async (req, res) => {
@@ -26,7 +38,6 @@ app.get('/test-db', async (req, res) => {
         res.status(500).send('Error de conexión con la base de datos');
     }
 });
-
 // Cuando esté corriendo, imprime un mensaje en consola
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);
