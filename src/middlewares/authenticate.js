@@ -10,7 +10,7 @@ const authenticateUser = (req, res, next) => {
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.SECRET_KEY); // SECRET_KEY en tu .env
+        const decoded = jwt.verify(token, process.env.SECRET_KEY); // SECRET_KEY en .env
 
         req.user_id = decoded.user_id;
         req.role = decoded.role;

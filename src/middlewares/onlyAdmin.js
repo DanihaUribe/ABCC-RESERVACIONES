@@ -15,7 +15,7 @@ function onlyAdmin(req, res, next) {
             return res.status(403).json({ message: 'Solo administradores pueden realizar esta acción' });
         }
 
-        req.user = decoded; // Se puede usar en el controlador si se necesita
+        req.user = decoded;
         next();
     } catch (error) {
         return res.status(403).json({ message: 'Token inválido o expirado' });

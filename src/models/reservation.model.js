@@ -4,7 +4,7 @@ reservation.model.js (Reservas)
 getByFolio(folio)
 getByDateAndVenue(venueId, date) — Consultar reservas por espacio y día
 create({ folio, requesterName, venueId, reservationDate, startTime, endTime, status, description })
-updateReservationByFolio(folio, data) — Editar  uno o varios campos a la vez (espacio, fecha, hora, estado)
+updateReservationByFolio(folio, data) — Editar uno o varios campos a la vez (espacio, fecha, hora, estado)
 getAll() — Solo para administradores
 verifyAvailability(venueId, date, startTime, endTime) — Verificar disponibilidad real
 
@@ -21,12 +21,12 @@ const ReservationModel = {
         const result = await db.query(`
             SELECT 
                 reservation.*, 
-                venue.name_venue AS venue_name  -- Seleccionamos el nombre del venue
+                venue.name_venue AS venue_name
             FROM reservation
-            INNER JOIN venue ON reservation.venue_id = venue.venue_id  -- Hacemos el INNER JOIN
-            WHERE reservation.folio = $1  -- Utilizamos el parámetro $1 para evitar SQL Injection
-        `, [folio]);  // Reemplazamos 1$ con $1 como marcador de posición
-        return result.rows[0];  // Retornamos el primer resultado de la consulta
+            INNER JOIN venue ON reservation.venue_id = venue.venue_id
+            WHERE reservation.folio = $1
+        `, [folio]); 
+        return result.rows[0];
     },
 
     //trae las reservaciones que ya ocupan un espacio por dia y espacio
@@ -65,7 +65,7 @@ const ReservationModel = {
             RETURNING *
         `, [folio, requesterName, venueId, reservationDate, startTime, endTime, status, description]);
     
-        return result.rows[0];  // Retornamos la nueva reservación creada
+        return result.rows[0];
     },
 
     // Actualiza una reservación por folio (permite editar uno o varios campos)
@@ -90,7 +90,7 @@ const ReservationModel = {
         values.push(folio);
       
         const result = await db.query(query, values);
-        return result.rows[0];  // Retornamos la reservación actualizada
+        return result.rows[0];
     },
 
     // Trae todas las reservaciones, excluyendo las canceladas
@@ -103,7 +103,7 @@ const ReservationModel = {
             INNER JOIN venue ON reservation.venue_id = venue.venue_id 
             WHERE reservation.status != $1
         `, ['Cancelada']);
-        return result.rows;  // Retornamos todas las reservaciones
+        return result.rows;
     },
     
     // Verifica que haya espacio libre en un venue para una fecha y rango de horas (no contamos esta si esta cancelada o rechazada)
@@ -121,7 +121,7 @@ const ReservationModel = {
         
         // Si la actualización de una reserva está en curso, excluimos la propia reserva
         if (reservationId) {
-            query += ` AND folio != $5`; // Añadimos una condición para excluir la reserva actual
+            query += ` AND folio != $5`; //excluir la reserva actual
         }
     
         const values = reservationId ? [venueId, date, startTime, endTime, reservationId] : [venueId, date, startTime, endTime];

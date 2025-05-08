@@ -11,16 +11,14 @@ app.get('/', (req, res) => {
     res.send('Servidor express funcionando :D');
 });
 
-// Importa las rutas de 'venue'
 const venueRoutes = require('./routes/venue.routes');
 app.use('/api', venueRoutes);
 
-// Importa las rutas de 'auth'
 const authRoutes = require('./routes/auth.routes');
 app.use('/api/auth', authRoutes);
 
 const changeHistoryRoutes = require('./routes/changeHistory.routes');
-app.use('/api', changeHistoryRoutes); // Esto lo convierte en /api/change-history
+app.use('/api', changeHistoryRoutes);
 
 const reservationRoutes = require('./routes/reservation.routes');
 app.use('/api/reservations', reservationRoutes);

@@ -33,7 +33,6 @@ const VenueModel = {
 
         //Recorrer los campos del objeto data para añadir los campos de forma dinámica
         for (let key in data) {
-        //fields = ["name_venue = $1", "capacity = $2"] crea los campos para la sentencia 
         fields.push(`${key} = $${index}`);
         values.push(data[key]);
         index++;
