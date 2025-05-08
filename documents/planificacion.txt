@@ -1,7 +1,7 @@
 Tecnologías:
 API REST
-Frontend: Vue.js
-Backend: Node.js con Express
+Frontend: Angular
+Backend: Node.js con Express v22.13.0
 Interfaz: Responsiva
 MVC (Modelo-Vista-Controlador) RESTful.
 microservicios (si es necesario para el momento)
