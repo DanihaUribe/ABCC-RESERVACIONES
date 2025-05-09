@@ -1,10 +1,16 @@
 // src/index.js
 const express = require('express');
+const cors = require('cors');  // Importa el paquete cors
 const app = express();
 const PORT = 3000;
 
 // Middleware para aceptar JSON
 app.use(express.json());
+
+// Habilitar CORS para todas las rutas, o especificar dominios permitidos
+app.use(cors({
+  origin: 'http://localhost:4200'  // Especifica la URL del frontend (puedes cambiar esto si usas otro puerto o dominio)
+}));
 
 // Ruta de prueba (GET) para verificar que el servidor funciona
 app.get('/', (req, res) => {
@@ -22,6 +28,12 @@ app.use('/api', changeHistoryRoutes);
 
 const reservationRoutes = require('./routes/reservation.routes');
 app.use('/api/reservations', reservationRoutes);
+
+// Levantar el servidor
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+
 
 
 

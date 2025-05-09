@@ -28,6 +28,7 @@ const AuthController = {
     },
 
     async login(req, res) {
+        console.log("login");
         const { username, password } = req.body;
 
         const user = await UserModel.findByUsername(username);
