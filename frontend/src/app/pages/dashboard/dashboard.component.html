@@ -1,1 +1,41 @@
-<p>dashboard works!</p>
+<div class="container mt-4">
+    <h2>Reservaciones</h2>
+  
+    <!-- Tabla de Reservaciones -->
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Folio</th>
+          <th>Nombre del solicitante</th>
+          <th>Nombre del lugar</th>
+          <th>Fecha de reserva</th>
+          <th>Hora de inicio</th>
+          <th>Hora de fin</th>
+          <th>Estado</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Mostrar las reservaciones -->
+        <tr *ngFor="let reservation of reservations">
+          <td>{{ reservation.folio }}</td>
+          <td>{{ reservation.requester_name }}</td>
+          <td>{{ reservation.venue_name }}</td>
+          <td>{{ reservation.reservation_date }}</td>
+          <td>{{ reservation.start_time }}</td>
+          <td>{{ reservation.end_time }}</td>
+          <td>{{ reservation.status }}</td>
+          <td>{{ reservation.description }}</td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Mostrar mensaje de carga si las reservaciones aún se están obteniendo -->
+    <div *ngIf="loading" class="text-center">
+      <span>Loading...</span>
+    </div>
+  </div>
+  
+  <!-- Botón de Logout -->
+  <button (click)="logout()" class="btn btn-danger mt-3">Cerrar sesión</button>
+  
