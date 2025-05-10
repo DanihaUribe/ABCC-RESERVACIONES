@@ -16,4 +16,12 @@ export class ReservationService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<any>(this.apiUrl, { headers });
   }
+
+  updateReservationStatus(folio: string, status: string, token: string) {
+    const url = `${this.apiUrl}/${folio}`;
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.put(url, { status }, { headers });
+  }
+
 }

@@ -1,41 +1,145 @@
-<div class="container mt-4">
-    <h2>Reservaciones</h2>
-  
-    <!-- Tabla de Reservaciones -->
-    <table class="table table-bordered table-striped">
-      <thead>
-        <tr>
-          <th>Folio</th>
-          <th>Nombre del solicitante</th>
-          <th>Nombre del lugar</th>
-          <th>Fecha de reserva</th>
-          <th>Hora de inicio</th>
-          <th>Hora de fin</th>
-          <th>Estado</th>
-          <th>Descripción</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Mostrar las reservaciones -->
-        <tr *ngFor="let reservation of reservations">
-          <td>{{ reservation.folio }}</td>
-          <td>{{ reservation.requester_name }}</td>
-          <td>{{ reservation.venue_name }}</td>
-          <td>{{ reservation.reservation_date }}</td>
-          <td>{{ reservation.start_time }}</td>
-          <td>{{ reservation.end_time }}</td>
-          <td>{{ reservation.status }}</td>
-          <td>{{ reservation.description }}</td>
-        </tr>
-      </tbody>
-    </table>
-  
-    <!-- Mostrar mensaje de carga si las reservaciones aún se están obteniendo -->
-    <div *ngIf="loading" class="text-center">
-      <span>Loading...</span>
+<!-- NAVBAR azul oscuro con texto claro -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <!-- Marca / Logo -->
+    <a class="navbar-brand" href="#">Portal</a>
+
+    <!-- Botón toggler para pantallas pequeñas -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+      aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menú colapsable -->
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <!-- Bienvenida -->
+        <li class="nav-item me-3">
+          <span class="navbar-text">
+            Bienvenido, <strong>{{ username }}</strong>
+          </span>
+        </li>
+        <!-- Logout -->
+        <li class="nav-item">
+          <button (click)="logout()" class="btn btn-outline-light">
+            Cerrar sesión
+          </button>
+        </li>
+      </ul>
     </div>
   </div>
-  
-  <!-- Botón de Logout -->
-  <button (click)="logout()" class="btn btn-danger mt-3">Cerrar sesión</button>
-  
+</nav>
+
+
+<!-- CONTENIDO CENTRADO -->
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Reservaciones</h2>
+
+<table class="table table-bordered table-striped ">
+  <thead class="">
+      <tr>
+        <th>N°</th>
+        <th>Folio</th>
+        <th>Espacio</th>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Descripción</th>
+        <th>Estado</th>
+        <th>Edición</th>
+        <th>Historial</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let reservation of reservations; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ reservation.folio }}</td>
+        <td>{{ reservation.venue_name }}</td>
+        <td>{{ reservation.reservation_date | date:'shortDate':'':'es' }}</td>
+        <td>{{ reservation.start_time }} - {{ reservation.end_time }}</td>
+        <td>{{ reservation.description }}</td>
+        <td>
+          <select
+            class="form-select form-select-sm"
+            [ngClass]="{
+              'select-aprobada': reservation.status === 'Aprobada',
+              'select-rechazada': reservation.status === 'Rechazada',
+              'select-pendiente': reservation.status === 'Pendiente'
+            }"
+            [ngModel]="reservation.status"
+            (ngModelChange)="onStatusChange(reservation, $event)">
+            <option *ngFor="let status of ['Pendiente','Aprobada','Rechazada']"
+                    [value]="status"
+                    [disabled]="status === reservation.status">
+              {{ status }}
+            </option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-success">Editar</button>
+        </td>
+        <td>
+          <button class="btn btn-primary btn-md" (click)="openHistoryModal(reservation)">Ver</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Mensaje de carga -->
+  <div *ngIf="loading" class="text-center">
+    <span>Loading...</span>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true" >
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="historyModalLabel">Historial de Reservación: {{ history[0]?.reservation_folio }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body" *ngIf="history.length > 0; else noData">
+        <table class="table table-bordered table-striped">
+          <thead class="table-dark">
+            <tr>
+
+              
+              <th>Fecha y Hora</th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Acción</th>
+
+
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of history">
+     
+              
+              <td>{{ item.action_date | date:'short' }}</td>
+              <td>{{ item.username}}</td>
+              <td>{{ item.user_role}}</td>
+              <td>{{ item.action_changed }}</td>
+
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #noData>
+        <div class="text-center p-3">
+          No se encontró historial para esta reservación.
+        </div>
+      </ng-template>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>

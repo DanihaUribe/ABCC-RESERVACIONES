@@ -147,7 +147,7 @@ const ReservationController = {
                 if (originalReservation[key] !== data[key]) {
                     historyEntries.push({
                         user_id: req.user_id,
-                        action_changed: `Modificada: ${key} de ${originalReservation[key]} a ${data[key]}`,
+                        action_changed: `${key} de ${originalReservation[key]} a ${data[key]}`,
                         reservation_folio: folio
                     });
                 }

@@ -20,11 +20,21 @@ const ChangeHistoryModel = {
     // Obtener el historial de cambios para un folio de reserva
     async getByFolio(folio) {
         const result = await db.query(`
-            SELECT * FROM change_history 
-            WHERE reservation_folio = $1
+            SELECT 
+                ch.change_id,
+                ch.user_id,
+                ch.action_changed,
+                ch.reservation_folio,
+                ch.action_date,
+                u.username,
+                u.user_role
+            FROM change_history ch
+            INNER JOIN user_table u ON ch.user_id = u.user_id
+            WHERE ch.reservation_folio = $1
+            ORDER BY ch.action_date DESC
         `, [folio]);
         return result.rows;
-    }
+}
 };
 
 module.exports = ChangeHistoryModel;

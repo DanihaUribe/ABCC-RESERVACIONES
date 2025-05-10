@@ -29,6 +29,8 @@ npm install -g @angular/cli
 ng new frontend --routing --style=scss
 npm install bootstrap
 
+//
+npm install --save-dev @types/bootstrap
 
 
 //git
