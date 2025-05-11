@@ -1,67 +1,80 @@
-
 <app-navbar></app-navbar>
 <!-- CONTENIDO CENTRADO -->
-<div class="container mt-5">
+<div class="container mt-5 ">
   <h2 class="text-center mb-4">Reservaciones</h2>
 
-<table class="table table-bordered table-striped ">
-  <thead class="">
-      <tr>
-        <th>N°</th>
-        <th>Folio</th>
-        <th>Espacio</th>
-        <th>Fecha</th>
-        <th>Hora</th>
-        <th>Descripción</th>
-        <th>Estado</th>
-        <th>Edición</th>
-        <th>Historial</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let reservation of reservations; let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>{{ reservation.folio }}</td>
-        <td>{{ reservation.venue_name }}</td>
-        <td>{{ reservation.reservation_date | date:'shortDate':'':'es' }}</td>
-        <td>{{ reservation.start_time }} - {{ reservation.end_time }}</td>
-        <td>{{ reservation.description }}</td>
-        <td>
-          <select
-            class="form-select form-select-sm"
-            [ngClass]="{
-              'select-aprobada': reservation.status === 'Aprobada',
-              'select-rechazada': reservation.status === 'Rechazada',
-              'select-pendiente': reservation.status === 'Pendiente'
-            }"
-            [ngModel]="reservation.status"
-            (ngModelChange)="onStatusChange(reservation, $event)">
-            <option *ngFor="let status of ['Pendiente','Aprobada','Rechazada']"
-                    [value]="status"
-                    [disabled]="status === reservation.status">
-              {{ status }}
-            </option>
-          </select>
-        </td>
-        <td>
-          <button class="btn btn-success" (click)="goToEdit(reservation)">Editar</button>
-        </td>
-        <td>
-          <button class="btn btn-primary btn-md" (click)="openHistoryModal(reservation)">Ver</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Tabla -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>N°</th>
+          <th>Folio</th>
+          <th>Espacio</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Estado</th>
+          <th>Edición</th>
+          <th>Historial</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reservation of paginatedReservations(); let i = index">
+          <td>{{ (currentPage - 1) * pageSize + (i + 1) }}</td>
+          <td>{{ reservation.folio }}</td>
+          <td>{{ reservation.venue_name }}</td>
+          <td>{{ reservation.reservation_date | date: 'dd/MM/yy' }}</td>
+          <td>{{ formatTo12Hour(reservation.start_time) }} - {{ formatTo12Hour(reservation.end_time) }}</td>
+          <td>
+            <select
+              class="form-select form-select-sm"
+              [ngClass]="{
+                'select-aprobada': reservation.status === 'Aprobada',
+                'select-rechazada': reservation.status === 'Rechazada',
+                'select-pendiente': reservation.status === 'Pendiente'
+              }"
+              [ngModel]="reservation.status"
+              (ngModelChange)="onStatusChange(reservation, $event)">
+              <option *ngFor="let status of ['Pendiente','Aprobada','Rechazada']"
+                      [value]="status"
+                      [disabled]="status === reservation.status">
+                {{ status }}
+              </option>
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-success" (click)="goToEdit(reservation)">Editar</button>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-md" (click)="openHistoryModal(reservation)">Ver</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <!-- Mensaje de carga -->
   <div *ngIf="loading" class="text-center">
-    <span>Loading...</span>
+    <span>Cargando...</span>
   </div>
+
+  <!-- Paginación -->
+  <nav aria-label="Page navigation" class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="prevPage()">«</button>
+      </li>
+      <li class="page-item" *ngFor="let page of totalPagesArray()" [class.active]="page === currentPage">
+        <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="nextPage()">»</button>
+      </li>
+    </ul>
+  </nav>
 </div>
-
-
 <!-- Modal -->
-<div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true" >
+<div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       
@@ -74,26 +87,18 @@
         <table class="table table-bordered table-striped">
           <thead class="table-dark">
             <tr>
-
-              
               <th>Fecha y Hora</th>
               <th>Usuario</th>
               <th>Rol</th>
               <th>Acción</th>
-
-
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let item of history">
-     
-              
-              <td>{{ item.action_date | date:'short' }}</td>
-              <td>{{ item.username}}</td>
-              <td>{{ item.user_role}}</td>
+              <td>{{ item.action_date | date:'dd/MM/yy hh:mm a' }}</td>
+              <td>{{ item.username }}</td>
+              <td>{{ item.user_role }}</td>
               <td>{{ item.action_changed }}</td>
-
-
             </tr>
           </tbody>
         </table>
@@ -108,7 +113,6 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
-
     </div>
   </div>
 </div>

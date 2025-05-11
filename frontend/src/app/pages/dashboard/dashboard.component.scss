@@ -15,3 +15,14 @@
   border: 2px solid #c5ba56;
   color: #c09317;
 }
+.table-responsive {
+  max-height: 100vh;  /* Ajusta el valor según el alto que desees */
+}
+
+.pagination {
+  position: sticky;
+  bottom: 0;
+  background-color: #fff;  /* Fondo blanco para que no se mezcle con la tabla */
+  z-index: 10;  /* Asegura que la paginación esté siempre arriba de otros elementos */
+  margin-top: 10px;  /* Ajusta el espacio entre la tabla y la paginación */
+}

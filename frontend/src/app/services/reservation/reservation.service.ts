@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 export class ReservationService {
   private apiUrl = 'http://localhost:3000/api/reservations'; // URL de tu API
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Método para obtener las reservaciones
   getReservations(token: string): Observable<any> {
@@ -33,6 +33,11 @@ export class ReservationService {
     const url = `${this.apiUrl}/fecha/${venue}/${date}`;
     return this.http.get<any>(url); // <-- usar la URL correcta
   }
+  updateReservation(folio: string, data: any, token: string) {
+    const url = `${this.apiUrl}/${folio}`;
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
+    return this.http.put(url, data, { headers });
+  }
 
 }

@@ -107,7 +107,7 @@ const ReservationController = {
             }
 
             // Validar que solo administradores puedan cancelar
-            if (data.status === 'Cancelada' && req.role !== 'admin') {
+            if (data.status === 'Cancelada' && req.role !== 'Administrador') {
                 return res.status(403).json({ error: 'Solo los administradores pueden cancelar una reservación' });
             }
 
