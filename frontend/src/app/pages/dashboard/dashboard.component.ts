@@ -8,12 +8,12 @@ import Swal from 'sweetalert2';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import * as bootstrap from 'bootstrap';
-
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true, // Asegúrate de marcarlo como standalone
-  imports: [CommonModule, FormsModule],  // Aquí importas CommonModule
+  imports: [CommonModule, FormsModule, NavbarComponent ],  // Aquí importas CommonModule
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -25,6 +25,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   private pollingInterval: any;
   username: string | null = null;
+  
   constructor(
     private router: Router,
     private reservationService: ReservationService,
@@ -33,10 +34,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getReservations(); // Obtener las reservaciones inicialmente
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.username = this.getUsernameFromToken(token);
-    }
     // Actualizar las reservaciones cada 10 segundos
     this.pollingInterval = setInterval(() => {
       this.getReservations();
@@ -50,16 +47,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  getUsernameFromToken(token: string): string | null {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.username || null;
-    } catch (e) {
-      console.error('Error al decodificar el token', e);
-      return null;
-
-    }
-  }
 
 
  getHistoryByFolio(reservation: any) {
@@ -168,14 +155,6 @@ openHistoryModal(reservation: any) {
     }
   }
 
-  // Método logout
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    this.router.navigate(['/login']);
-    console.log('Usuario desconectado');
-  }
-
   // Método para cambiar el estado de la reservación
   onStatusChange(reservation: any, newStatus: string) {
     const previousStatus = reservation.status;
@@ -223,4 +202,14 @@ openHistoryModal(reservation: any) {
       }
     });
   }
+
+
+
+goToEdit(reservation: any) {
+  this.router.navigate(['/edit-reservation'], {
+    queryParams: {
+      folio: reservation.folio
+    }
+  });
+}
 }

@@ -6,10 +6,11 @@ const authenticateUser = require('../middlewares/authenticate');
 // Rutas públicas: empleados
 router.post('/', ReservationController.create);
 router.get('/:folio', ReservationController.getByFolio);
+router.get('/fecha/:venueId/:date', ReservationController.getByDateAndVenue);
+//http://localhost:3000/api/reservations/fecha/1/2025-05-08
 
 // Rutas protegidas: administrador
 router.get('/', authenticateUser, ReservationController.getAll);
-router.get('/fecha/:venueId/:date', authenticateUser, ReservationController.getByDateAndVenue);
 router.put('/:folio', authenticateUser, ReservationController.update);
 router.get('/verificar/disponibilidad', authenticateUser, ReservationController.verifyAvailability);
 

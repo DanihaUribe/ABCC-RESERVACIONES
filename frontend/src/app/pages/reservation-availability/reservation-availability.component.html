@@ -1,0 +1,58 @@
+<div class="container mt-4">
+    <!-- Selector de Lugar y Fecha -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="venue" class="form-label">Lugar</label>
+            <select id="venue" class="form-select" [(ngModel)]="selectedVenue" (ngModelChange)="loadReservations()">
+                <option *ngFor="let venue of venues" [ngValue]="venue" [selected]="venue === venues[0]">
+                    {{ venue.name_venue }}
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="date" class="form-label">Fecha</label>
+            <input type="date" id="date" class="form-control" [(ngModel)]="today" (ngModelChange)="loadReservations()">
+        </div>
+    </div>
+
+    <!-- Mostrar Tabla de Horarios (según la selección de lugar y fecha) -->
+    <div class="mb-3 text-center  ">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Espacios para reservaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 
+                <tr *ngFor="let slot of availableSlots">
+                    <td>
+                        <p [ngClass]="{
+                                'p-aprobada': slot.status === 'Aprobada',
+                                'p-rechazada': slot.status === 'Rechazada',
+                                'p-pendiente': slot.status === 'Pendiente',
+                                'p-disponible': slot.status === 'Disponible'
+                            }">
+                            {{ slot.start }} - {{ slot.end }} {{ slot.status }}
+                        </p>
+                    </td>
+                </tr>
+                -->
+                <tr *ngFor="let slot of availableSlots">
+                    <td>
+                        <p [ngClass]="{
+          'p-disponible': slot.status === 'Disponible',
+          'p-ocupado': slot.status !== 'Disponible'
+        }">
+                            {{ formatTo12Hour(slot.start) }} - {{ formatTo12Hour(slot.end) }} <br>
+                            {{ slot.status === 'Disponible' ? 'Disponible' : 'Ocupado' }}
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+</div>

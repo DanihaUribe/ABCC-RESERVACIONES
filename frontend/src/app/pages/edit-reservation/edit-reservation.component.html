@@ -1,0 +1,69 @@
+<app-navbar></app-navbar>
+<div class="container mt-4">
+    <div *ngIf="reservationToEdit; else loading">
+        <p>Folio: {{ reservationToEdit.folio }}</p>
+        <p>Solicitante: {{ reservationToEdit.requester_name }}</p>
+        <p>Fecha de la Solicitud: {{ reservationToEdit.created_at | date: 'dd/MM/yy' }}</p>
+    </div>
+
+    <ng-template #loading>
+        <p>Cargando...</p>
+    </ng-template>
+    <!-- Selector de Lugar y Fecha -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="venue" class="form-label">Lugar</label>
+            <select id="venue" class="form-select" [(ngModel)]="selectedVenue" (ngModelChange)="loadReservations()">
+                <option *ngFor="let venue of venues" [ngValue]="venue">
+                    {{ venue.name_venue }}
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="date" class="form-label">Fecha</label>
+            <input type="date" id="date" class="form-control" [(ngModel)]="today" (ngModelChange)="loadReservations()">
+        </div>
+    </div>
+
+    <!-- Mostrar Tabla de Horarios (según la selección de lugar y fecha) -->
+    <div class="mb-3 text-center">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Espacios para reservaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let slot of availableSlots">
+                    <td>
+                        <p [ngClass]="{
+                                'p-aprobada': slot.status === 'Aprobada',
+                                'p-rechazada': slot.status === 'Rechazada',
+                                'p-pendiente': slot.status === 'Pendiente',
+                                'p-disponible': slot.status === 'Disponible'
+                            }">
+                            {{ slot.start }} - {{ slot.end }} <br> {{ slot.status }}
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="startTime" class="form-label">Hora de Inicio</label>
+            <input type="time" id="startTime" class="form-control" min="08:00" max="19:00">
+        </div>
+        <div class="col-md-6">
+            <label for="endTime" class="form-label">Hora de Fin</label>
+            <input type="time" id="endTime" class="form-control" min="08:00" max="19:00">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <p><strong>Duración:</strong> 15 minutos</p>
+        <button class="btn btn-primary">Confirmar Reserva</button>
+    </div>
+</div>

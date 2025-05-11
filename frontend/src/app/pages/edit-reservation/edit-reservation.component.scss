@@ -1,0 +1,29 @@
+.p-aprobada, .p-rechazada, .p-pendiente, .p-disponible, .p-ocupado {
+  background-color: #C8E6C9; /* Color base por defecto */
+  color: #2E7D32;
+  border-radius: 8px;
+  padding: 6px 20%;
+  font-weight: bold;
+  display: inline-block; /* Cambiado de block a inline-block para centrarlo */
+  text-align: center;
+  box-sizing: border-box;
+  min-width: 120px;
+  margin: 0 auto; /* Centra horizontalmente */
+  letter-spacing: 1px;
+}
+
+/* Colores por estado */
+.p-aprobada, .p-rechazada, .p-ocupado {
+  background-color: #FFCDD2;
+  color: #793434;
+}
+
+.p-pendiente {
+  background-color: #FFF9C4;
+  color: #c09317;
+}
+
+.p-disponible {
+  background-color: #C8E6C9;
+  color: #2E7D32;
+}

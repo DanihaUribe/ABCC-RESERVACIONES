@@ -9,9 +9,8 @@ router.get('/venues', venueController.getAllVenues);
 // Obtener un espacio por ID
 router.get('/venues/:id', venueController.getVenueById);
 
-// Crear un nuevo espacio
+// Crear un nuevo espacio: no se usan pero por si acaso
 router.post('/venues', venueController.createVenue);
-
 // Actualizar un espacio
 router.put('/venues/:id', venueController.updateVenue);
 

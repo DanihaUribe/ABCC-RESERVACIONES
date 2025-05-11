@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../auth.service';  // Importa el servicio de autenticación
+import { AuthService } from '../services/auth/auth.service';  // Importa el servicio de autenticación
 import { Router } from '@angular/router';  // Para redirección
+import Swal from 'sweetalert2';  // Importar SweetAlert2
 
 @Component({
   selector: 'app-login',
@@ -37,25 +38,40 @@ export class LoginComponent {
           // Decodificar el token si es necesario
           const payload = JSON.parse(atob(response.token.split('.')[1]));
           localStorage.setItem('user', JSON.stringify(payload));
-          console.log('Deberias ser renviado?:');
-          const user = JSON.parse(localStorage.getItem('user') || '{}'); // Si no existe 'user', se asigna un objeto vacío
-console.log('Usuario almacenado en localStorage:', user);
+
+          console.log('Usuario almacenado en localStorage:', payload);
+
           // Redirigir a otra página dependiendo del rol
           if (payload.role === 'Administrador' || payload.role === 'Jefe de departamento') {
-            console.log('Deberias ser dashboard:');
             this.router.navigate(['/dashboard']);
           } else {
-            console.log('Deberias ser user-home:');
             this.router.navigate(['/user-home']);
           }
+
+          // Mostrar alerta de éxito con SweetAlert
+          Swal.fire({
+            icon: 'success',
+            title: 'Login exitoso',
+            text: '¡Bienvenido de nuevo!'
+          });
         },
         error: (error) => {
           console.error('Error en el login:', error);
-          // Muestra un mensaje de error si el login falla
-          alert('Credenciales incorrectas o error en el servidor. Intenta nuevamente.');
+          // Mostrar alerta de error con SweetAlert
+          Swal.fire({
+            icon: 'error',
+            title: 'Error en el login',
+            text: 'Credenciales incorrectas o error en el servidor. Intenta nuevamente.'
+          });
         }
       });
+    } else {
+      // Si el formulario no es válido, muestra un mensaje de advertencia
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Por favor, completa todos los campos requeridos.'
+      });
     }
-}
-
+  }
 }

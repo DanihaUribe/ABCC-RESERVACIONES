@@ -10,14 +10,12 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  // Cambiar la firma de la función login para que reciba un solo objeto
   login(credentials: { username: string, password: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials)
       .pipe(
         catchError((error) => {
-          // Aquí puedes manejar el error como quieras
           console.error('Error en la autenticación:', error);
-          throw error;  // Vuelve a lanzar el error para que lo maneje el componente
+          throw error;  
         })
       );
   }

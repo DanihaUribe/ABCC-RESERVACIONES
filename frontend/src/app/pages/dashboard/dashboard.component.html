@@ -1,36 +1,5 @@
-<!-- NAVBAR azul oscuro con texto claro -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container">
-    <!-- Marca / Logo -->
-    <a class="navbar-brand" href="#">Portal</a>
 
-    <!-- Botón toggler para pantallas pequeñas -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-      aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Menú colapsable -->
-    <div class="collapse navbar-collapse" id="mainNavbar">
-      <ul class="navbar-nav ms-auto align-items-center">
-        <!-- Bienvenida -->
-        <li class="nav-item me-3">
-          <span class="navbar-text">
-            Bienvenido, <strong>{{ username }}</strong>
-          </span>
-        </li>
-        <!-- Logout -->
-        <li class="nav-item">
-          <button (click)="logout()" class="btn btn-outline-light">
-            Cerrar sesión
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-
+<app-navbar></app-navbar>
 <!-- CONTENIDO CENTRADO -->
 <div class="container mt-5">
   <h2 class="text-center mb-4">Reservaciones</h2>
@@ -75,7 +44,7 @@
           </select>
         </td>
         <td>
-          <button class="btn btn-success">Editar</button>
+          <button class="btn btn-success" (click)="goToEdit(reservation)">Editar</button>
         </td>
         <td>
           <button class="btn btn-primary btn-md" (click)="openHistoryModal(reservation)">Ver</button>

@@ -31,20 +31,23 @@ const AuthController = {
         console.log("login");
         const { username, password } = req.body;
 
-        const user = await UserModel.findByUsername(username);
-        if (!user) return res.status(401).json({ message: 'Credenciales inválidas' });
+        try {
+            const user = await UserModel.findByUsername(username);
+            if (!user || !await bcrypt.compare(password, user.password_hash)) {
+                return res.status(401).json({ message: 'Credenciales inválidas' });
+            }
 
-        const valid = await bcrypt.compare(password, user.password_hash);
-        if (!valid) return res.status(401).json({ message: 'Credenciales inválidas' });
+            const token = jwt.sign(
+                { user_id: user.user_id, username: user.username, role: user.user_role },
+                SECRET_KEY,
+                { expiresIn: '2h' }
+            );
 
-        const token = jwt.sign(
-            { user_id: user.user_id, username: user.username, role: user.user_role },
-            SECRET_KEY,
-            { expiresIn: '2h' }
-        );
-
-        res.json({ message: 'Login exitoso', token });
-
+            return res.json({ message: 'Login exitoso', token });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Error en el servidor' });
+        }
     }
 };
 
