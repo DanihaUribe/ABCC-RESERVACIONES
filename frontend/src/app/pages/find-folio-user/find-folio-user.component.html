@@ -1,0 +1,79 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<app-navbar-user></app-navbar-user>
+
+<div class="container mt-5">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">Consultar Reserva</h2>
+    <p class="text-muted">Ingresa tu folio de reservación para conocer el estado.</p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="input-group shadow-sm">
+        <input type="text" class="form-control" placeholder="Ingresa tu folio" [(ngModel)]="folio" />
+        <button class="btn btn-primary" (click)="buscarReserva()">
+          Buscar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarjeta con la información de la reserva (se muestra solo si existe) -->
+  <div *ngIf="foundReservation" class="mt-4">
+    <button class="btn btn-outline-danger mt-3" (click)="descargarPDF()">Descargar PDF</button>
+    <div id="reservaPDF" *ngIf="foundReservation" class="mt-4">
+      <div class="card shadow-lg">
+        <div class="card-header text-center">
+          <h3 class="fw-bold">Detalles de la Reserva</h3>
+        </div>
+        <div class="card-body">
+          <table class="table table-borderless">
+            <tr>
+              <th>Folio</th>
+              <td>{{ foundReservation.folio }}</td>
+            </tr>
+            <tr>
+              <th>Estado</th>
+              <td>
+                <span [ngClass]="{
+                  'p-aprobada': foundReservation.status === 'Aprobada',
+                  'p-pendiente': foundReservation.status === 'Pendiente',
+                  'p-rechazada': foundReservation.status === 'Rechazada',
+                  'p-disponible': foundReservation.status === 'Disponible',
+                  'p-ocupado': foundReservation.status === 'Ocupado'
+                }">
+                  {{ foundReservation.status }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Historial de cambios -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h4>Historial de Cambios</h4>
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Acción</th>
+                <th>Fecha de Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let change of foundReservation.history_changed">
+                <td>{{ change.action_changed }}</td>
+                <td>{{ change.action_date | date: 'dd/MM/yy' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

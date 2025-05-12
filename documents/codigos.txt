@@ -32,6 +32,8 @@ npm install bootstrap
 //
 npm install --save-dev @types/bootstrap
 
+//pdfs
+npm install html2pdf.js
 
 //git
 git init

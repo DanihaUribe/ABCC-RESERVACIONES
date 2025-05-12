@@ -19,13 +19,18 @@ export class EditReservationComponent implements OnInit {
   reservationsByDate: any[] = [];
   venues: any[] = [];
   selectedVenue: any;
-  today: string = new Date().toISOString().split('T')[0];
+  today: string = (() => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+})();
   availableSlots: any[] = [];
   folioActual: string = '';
   reservationToEdit: any = null;
   loading: boolean = true;
   originalReservation: any = null;
-
 
 
   constructor(

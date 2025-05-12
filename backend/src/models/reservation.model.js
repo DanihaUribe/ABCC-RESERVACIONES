@@ -25,7 +25,7 @@ const ReservationModel = {
             FROM reservation
             INNER JOIN venue ON reservation.venue_id = venue.venue_id
             WHERE reservation.folio = $1
-        `, [folio]); 
+        `, [folio]);
         return result.rows[0];
     },
 
@@ -50,12 +50,12 @@ const ReservationModel = {
     async create({ requesterName, venueId, reservationDate, startTime, endTime, status, description }) {
         const countResult = await db.query(`SELECT COUNT(*) FROM reservation`);
         const count = parseInt(countResult.rows[0].count) + 1;
-    
-        const now = moment(); 
+
+        const now = moment();
         const datePart = now.format('YYMMDD');
         const timePart = now.format('HHmm');
         const folio = `RES-${count}-${datePart}-${timePart}`;
-    
+
         const result = await db.query(`
             INSERT INTO reservation (
                 folio, requester_name, venue_id, reservation_date, 
@@ -64,7 +64,7 @@ const ReservationModel = {
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
         `, [folio, requesterName, venueId, reservationDate, startTime, endTime, status, description]);
-    
+
         return result.rows[0];
     },
 
@@ -73,39 +73,40 @@ const ReservationModel = {
         const fields = [];
         const values = [];
         let index = 1;
-      
+
         for (const [key, value] of Object.entries(data)) {
-          fields.push(`${key} = $${index}`);
-          values.push(value);
-          index++;
+            fields.push(`${key} = $${index}`);
+            values.push(value);
+            index++;
         }
-      
+
         const query = `
           UPDATE reservation
           SET ${fields.join(', ')}
           WHERE folio = $${index}
           RETURNING *;
         `;
-      
+
         values.push(folio);
-      
+
         const result = await db.query(query, values);
         return result.rows[0];
     },
 
-    // Trae todas las reservaciones, excluyendo las canceladas
+    // !!Trae todas las reservaciones, excluyendo las canceladas
     async getAll() {
         const result = await db.query(`
-            SELECT 
-                reservation.*, 
-                venue.name_venue AS venue_name 
-            FROM reservation
-            INNER JOIN venue ON reservation.venue_id = venue.venue_id 
-            WHERE reservation.status != $1
-        `, ['Cancelada']);
+        SELECT 
+            reservation.*, 
+            venue.name_venue AS venue_name 
+        FROM reservation
+        INNER JOIN venue ON reservation.venue_id = venue.venue_id 
+        WHERE reservation.status != $1
+        ORDER BY reservation.created_at DESC
+    `, ['Cancelada']);
         return result.rows;
     },
-    
+
     // Verifica que haya espacio libre en un venue para una fecha y rango de horas (no contamos esta si esta cancelada o rechazada)
     async verifyAvailability(venueId, date, startTime, endTime, reservationId = null) {
         let query = `
@@ -117,22 +118,69 @@ const ReservationModel = {
               (start_time < $4 AND end_time > $3)
           )
         `;
-    
-        
+
+
         // Si la actualización de una reserva está en curso, excluimos la propia reserva
         if (reservationId) {
             query += ` AND folio != $5`; //excluir la reserva actual
         }
-    
+
         const values = reservationId ? [venueId, date, startTime, endTime, reservationId] : [venueId, date, startTime, endTime];
         const result = await db.query(query, values);
-        
+
         // Si hay resultados, significa que el espacio ya está ocupado
         return result.rows.length === 0;
+    },
+    // Trae una reservación por el folio con su historial de cambios
+    async getByFolioForUsers(folio) {
+        try {
+            // Consulta para obtener el estado actual de la reserva
+            const reservaResult = await db.query(`
+            SELECT 
+                reservation.folio,
+                reservation.status
+            FROM reservation
+            WHERE reservation.folio = $1
+        `, [folio]);
+
+            // Si no se encuentra la reserva, lanzamos un error
+            if (reservaResult.rows.length === 0) {
+                throw new Error('Reserva no encontrada');
+            }
+
+            // Consulta para obtener el historial de cambios de la reserva
+            const historyResult = await db.query(`
+            SELECT 
+                action_changed, 
+                action_date
+            FROM change_history
+            WHERE reservation_folio = $1
+            ORDER BY action_date DESC
+        `, [folio]);
+
+            // Construcción del JSON con la información
+            const reserva = reservaResult.rows[0];
+            const history = historyResult.rows;
+
+            //! Retornamos el objeto combinado!
+            return {
+                folio: reserva.folio,
+                status: reserva.status,
+                history_changed: history.map(change => ({
+                    action_changed: change.action_changed,
+                    action_date: change.action_date
+                }))
+            };
+
+        } catch (error) {
+            console.error('Error al obtener la reserva o el historial:', error);
+            throw error;  // Puedes manejar el error de la manera que prefieras (por ejemplo, con una respuesta HTTP adecuada)
+        }
+
     }
-    
-    
-    
+
+
+
 };
 
 module.exports = ReservationModel;

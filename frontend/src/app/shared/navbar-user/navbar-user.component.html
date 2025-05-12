@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container">
     <!-- Marca / Logo -->
-    <a class="navbar-brand" href="/dashboard">Portal</a>
+    <a class="navbar-brand" href="user-home">Reservaciones</a>
 
     <!-- Botón toggler para pantallas pequeñas -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
@@ -10,20 +10,14 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Menú colapsable -->
+    <!-- Links de navegación -->
     <div class="collapse navbar-collapse" id="mainNavbar">
-      <ul class="navbar-nav ms-auto align-items-center">
-        <!-- Bienvenida -->
-        <li class="nav-item me-3">
-          <span class="navbar-text">
-            Bienvenido, <strong>{{ username }}</strong>
-          </span>
-        </li>
-        <!-- Logout -->
+      <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <button (click)="logout()" class="btn btn-outline-light">
-            Cerrar sesión
-          </button>
+          <a class="nav-link" href="user-search-folio">Consultar Folio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/reservation-availability">Reservar</a>
         </li>
       </ul>
     </div>

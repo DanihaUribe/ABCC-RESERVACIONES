@@ -1,90 +1,93 @@
 <app-navbar></app-navbar>
+<div *ngIf="reservationToEdit">
 
-<div class="container mt-4">
-    <!-- Fila principal: Filtros y Tabla -->
-    <div class="row" style="display: flex; align-items: stretch;">
 
-        <!-- Columna izquierda: Filtros -->
-        <div class="col-md-6">
-            <!-- Filtros: Lugar y Fecha -->
-            <div class="card mb-4 shadow-sm border-primary">
-                <div class="card-header bg-primary text-white">
-                    <strong>Cambiar lugar y fecha</strong>
+
+    <div class="container mt-4">
+        <!-- Fila principal: Filtros y Tabla -->
+        <div class="row" style="display: flex; align-items: stretch;">
+
+            <!-- Columna izquierda: Filtros -->
+            <div class="col-md-6">
+                <!-- Filtros: Lugar y Fecha -->
+                <div class="card mb-4 shadow-sm border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <strong>Cambiar lugar y fecha</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="venue" class="form-label">Espacio para la reunión</label>
+                            <select id="venue" class="form-select" [(ngModel)]="selectedVenue"
+                                (ngModelChange)="loadReservations()">
+                                <option *ngFor="let venue of venues" [ngValue]="venue">{{ venue.name_venue }}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Fecha de la reservación</label>
+                            <input type="date" id="date" class="form-control" [(ngModel)]="today"
+                                (ngModelChange)="loadReservations()">
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="venue" class="form-label">Espacio para la reunión</label>
-                        <select id="venue" class="form-select" [(ngModel)]="selectedVenue"
-                            (ngModelChange)="loadReservations()">
-                            <option *ngFor="let venue of venues" [ngValue]="venue">{{ venue.name_venue }}</option>
-                        </select>
+
+                <!-- Horario: Inicio y Fin -->
+                <div class="card mb-4 shadow-sm border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <strong>Cambiar horario</strong>
                     </div>
-                    <div class="mb-3">
-                        <label for="date" class="form-label">Fecha de la reservación</label>
-                        <input type="date" id="date" class="form-control" [(ngModel)]="today"
-                            (ngModelChange)="loadReservations()">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="startTime" class="form-label">Hora de Inicio</label>
+                            <input type="time" id="startTime" class="form-control" min="08:00" max="19:00"
+                                [(ngModel)]="reservationToEdit.start_time" (change)="validateTimeRange()">
+                        </div>
+                        <div class="mb-3">
+                            <label for="endTime" class="form-label">Hora de Fin</label>
+                            <input type="time" id="endTime" class="form-control" min="08:00" max="19:00"
+                                [(ngModel)]="reservationToEdit.end_time" (change)="validateTimeRange()">
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>Duración:</strong> {{ formatDuration(duration) }} min.</p>
+                        </div>
                     </div>
+
+                </div>
+
+                <!-- Mensajes de error -->
+                <div *ngIf="timeInvalid" class="alert alert-danger">
+                    La hora debe estar entre 08:00am y 07:00pm y el inicio debe ser anterior al fin.
+                </div>
+                <div *ngIf="duration < 10 && !timeInvalid" class="alert alert-warning">
+                    La duración mínima de la reunión es de 10 minutos.
+                </div>
+
+                <!-- Duración y botón -->
+                <div class="mb-4 d-flex gap-2">
+                    <button class="btn btn-primary btn-lg w-50" [disabled]="timeInvalid || duration < 10"
+                        (click)="saveReservationEdits()">
+                        Guardar cambios
+                    </button>
+
+                    <button class="btn btn-danger btn-lg w-50" (click)="cancelReservation()">
+                        Cancelar reserva
+                    </button>
                 </div>
             </div>
 
-            <!-- Horario: Inicio y Fin -->
-            <div class="card mb-4 shadow-sm border-primary">
-                <div class="card-header bg-primary text-white">
-                    <strong>Cambiar horario</strong>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="startTime" class="form-label">Hora de Inicio</label>
-                        <input type="time" id="startTime" class="form-control" min="08:00" max="19:00"
-                            [(ngModel)]="reservationToEdit.start_time" (change)="validateTimeRange()">
+            <!-- Columna derecha: Tabla de reservaciones -->
+            <div class="col-md-6">
+                <div class="card h-100" style="max-height: 600px; overflow-y: auto;">
+                    <div class="card-header text-center">
+                        <strong>Calendario de reservaciones y estado</strong>
                     </div>
-                    <div class="mb-3">
-                        <label for="endTime" class="form-label">Hora de Fin</label>
-                        <input type="time" id="endTime" class="form-control" min="08:00" max="19:00"
-                            [(ngModel)]="reservationToEdit.end_time" (change)="validateTimeRange()">
-                    </div>
-                    <div class="mb-3">
-                        <p><strong>Duración:</strong> {{ formatDuration(duration) }} min.</p>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Mensajes de error -->
-            <div *ngIf="timeInvalid" class="alert alert-danger">
-                La hora debe estar entre 08:00am y 07:00pm y el inicio debe ser anterior al fin.
-            </div>
-            <div *ngIf="duration < 10 && !timeInvalid" class="alert alert-warning">
-                La duración mínima de la reunión es de 10 minutos.
-            </div>
-
-            <!-- Duración y botón -->
-<div class="mb-4 d-flex gap-2">
-    <button class="btn btn-primary btn-lg w-50" [disabled]="timeInvalid || duration < 10"
-        (click)="saveReservationEdits()">
-        Guardar cambios
-    </button>
-
-    <button class="btn btn-danger btn-lg w-50" (click)="cancelReservation()">
-        Cancelar reserva
-    </button>
-</div>
-        </div>
-
-        <!-- Columna derecha: Tabla de reservaciones -->
-        <div class="col-md-6">
-            <div class="card h-100" style="max-height: 600px; overflow-y: auto;">
-                <div class="card-header text-center">
-                    <strong>Calendario de reservaciones y estado</strong>
-                </div>
-                <div class="card-body py-2">
-                    <!-- Contenedor con altura fija y scroll vertical -->
-                    <div>
-                        <table class="table mb-0 text-center" style="border-collapse: collapse;">
-                            <tbody>
-                                <tr *ngFor="let slot of availableSlots">
-                                    <td style="border: none;">
-                                        <p class="mb-0" [ngClass]="{
+                    <div class="card-body py-2">
+                        <!-- Contenedor con altura fija y scroll vertical -->
+                        <div>
+                            <table class="table mb-0 text-center" style="border-collapse: collapse;">
+                                <tbody>
+                                    <tr *ngFor="let slot of availableSlots">
+                                        <td style="border: none;">
+                                            <p class="mb-0" [ngClass]="{
                                             'p-aprobada': slot.status === 'Aprobada',
                                             'p-rechazada': slot.status === 'Rechazada',
                                             'p-pendiente': slot.status === 'Pendiente',
@@ -92,59 +95,60 @@
                                         }" [ngStyle]="{
                                             'border': slot.folio === reservationToEdit.folio ? '2px solid gray' : 'none'
                                         }">
-                                            {{ formatTo12Hour(slot.start) }} - {{ formatTo12Hour(slot.end) }}<br>
-                                            {{ slot.folio }} <br>
-                                            {{ slot.status }}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                                {{ formatTo12Hour(slot.start) }} - {{ formatTo12Hour(slot.end) }}<br>
+                                                {{ slot.folio }} <br>
+                                                {{ slot.status }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Ficha de información -->
-    <div *ngIf="reservationToEdit; else loading">
-        <div class="card mb-4 mt-4">
-            <div class="card-header">
-                <strong>Detalles de la Reservación</strong>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-3"><strong>Folio:</strong>
-                        <p>{{ reservationToEdit.folio }}</p>
-                    </div>
-                    <div class="col-md-3 mb-3"><strong>Solicitante:</strong>
-                        <p>{{ reservationToEdit.requester_name }}</p>
-                    </div>
-                    <div class="col-md-3 mb-3"><strong>Fecha de la Solicitud:</strong>
-                        <p>{{ reservationToEdit.created_at | date: 'dd/MM/yy' }}</p>
-                    </div>
-                    <div class="col-md-3 mb-3"><strong>Lugar:</strong>
-                        <p>{{ reservationToEdit.venue_name }}</p>
-                    </div>
-                    <div class="col-md-3 mb-3"><strong>Fecha de la Reservación:</strong>
-                        <p>{{ reservationToEdit.reservation_date | date: 'dd/MM/yy' }}</p>
-                    </div>
-                    <div class="col-md-3 mb-3"><strong>Horario Actual:</strong>
-                        <p>{{ formatTo12Hour(reservationToEdit.start_time) }} - {{
-                            formatTo12Hour(reservationToEdit.end_time) }}</p>
-                    </div>
-                    <div class="col-md-3 mb-3"><strong>Estado:</strong>
-                        <p>{{ reservationToEdit.status }}</p>
-                    </div>
-                    <div class="col-md-3 mb-3"><strong>Descripción:</strong>
-                        <p>{{ reservationToEdit.description }}</p>
+        <!-- Ficha de información -->
+        <div *ngIf="reservationToEdit; else loading">
+            <div class="card mb-4 mt-4">
+                <div class="card-header">
+                    <strong>Detalles de la Reservación</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3"><strong>Folio:</strong>
+                            <p>{{ reservationToEdit.folio }}</p>
+                        </div>
+                        <div class="col-md-3 mb-3"><strong>Solicitante:</strong>
+                            <p>{{ reservationToEdit.requester_name }}</p>
+                        </div>
+                        <div class="col-md-3 mb-3"><strong>Fecha de la Solicitud:</strong>
+                            <p>{{ reservationToEdit.created_at | date: 'dd/MM/yy' }}</p>
+                        </div>
+                        <div class="col-md-3 mb-3"><strong>Lugar:</strong>
+                            <p>{{ reservationToEdit.venue_name }}</p>
+                        </div>
+                        <div class="col-md-3 mb-3"><strong>Fecha de la Reservación:</strong>
+                            <p>{{ reservationToEdit.reservation_date | date: 'dd/MM/yy' }}</p>
+                        </div>
+                        <div class="col-md-3 mb-3"><strong>Horario Actual:</strong>
+                            <p>{{ formatTo12Hour(reservationToEdit.start_time) }} - {{
+                                formatTo12Hour(reservationToEdit.end_time) }}</p>
+                        </div>
+                        <div class="col-md-3 mb-3"><strong>Estado:</strong>
+                            <p>{{ reservationToEdit.status }}</p>
+                        </div>
+                        <div class="col-md-3 mb-3"><strong>Descripción:</strong>
+                            <p>{{ reservationToEdit.description }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <ng-template #loading>
-        <p>Cargando...</p>
-    </ng-template>
+        <ng-template #loading>
+            <p>Cargando...</p>
+        </ng-template>
+    </div>
 </div>

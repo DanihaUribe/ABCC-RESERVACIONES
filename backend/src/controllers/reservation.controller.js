@@ -1,5 +1,6 @@
 const ReservationModel = require('../models/reservation.model');
 const ChangeHistoryModel = require('../models/changeHistory.model');
+const VenueModel = require('../models/venue.model');
 
 const ReservationController = {
 
@@ -52,12 +53,12 @@ const ReservationController = {
     async create(req, res) {
         try {
             const { requesterName, venueId, reservationDate, startTime, endTime, description } = req.body;
-    
+
             // Verificamos que los datos obligatorios estén presentes
             if (!requesterName || !venueId || !reservationDate || !startTime || !endTime) {
                 return res.status(400).json({ error: 'Faltan datos obligatorios' });
             }
-    
+
             // Verificamos la disponibilidad del espacio
             const isAvailable = await ReservationModel.verifyAvailability(
                 venueId,
@@ -65,11 +66,11 @@ const ReservationController = {
                 startTime,
                 endTime
             );
-    
+
             if (!isAvailable) {
                 return res.status(409).json({ error: 'El espacio no está disponible en ese horario' });
             }
-    
+
             // Creamos la reservación con el estado 'Pendiente' por defecto
             const newReservation = await ReservationModel.create({
                 requesterName,
@@ -80,7 +81,7 @@ const ReservationController = {
                 status: 'Pendiente',  // Asignamos 'Pendiente' como estado predeterminado
                 description
             });
-    
+
             // Respondemos con la reservación creada
             res.status(201).json(newReservation);
         } catch (error) {
@@ -88,9 +89,10 @@ const ReservationController = {
             res.status(500).json({ error: 'Error al crear la reservación' });
         }
     },
-    
+
 
     // Actualizar reservación por folio
+    // Función para actualizar una reservación y guardar historial de cambios
     async update(req, res) {
         try {
             const { folio } = req.params;
@@ -141,13 +143,68 @@ const ReservationController = {
                 }
             }
 
+            // Obtener nombres de espacios si cambió venue_id
+            let newVenueName = null;
+            let oldVenueName = null;
+
+            if (data.venue_id && data.venue_id !== originalReservation.venue_id) {
+                console.log('Cambio de espacio detectado:', originalReservation.venue_id, '→', data.venue_id);
+                const newVenue = await VenueModel.getById(data.venue_id);
+                const oldVenue = await VenueModel.getById(originalReservation.venue_id);
+                console.log('Espacios obtenidos:', newVenue, oldVenue);
+                newVenueName =  newVenue.name_venue;
+                oldVenueName =  oldVenue.name_venue ;
+
+                console.log('Nuevos nombres de espacios:', newVenueName, oldVenueName);
+            }
+
+            // Funciones auxiliares para formato
+            const formatDate = (date) => {
+                const d = new Date(date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${day}/${month}/${year}`;
+            }; 
+
+            const formatTime = (time) => {
+                if (!time) return '';
+                return time.slice(0, 5); // "HH:mm:ss" → "HH:mm"
+            };
+
+            // Mapeo a nombres amigables
+            const fieldLabels = {
+                start_time: 'Hora de inicio',
+                end_time: 'Hora de fin',
+                reservation_date: 'Fecha de reservación',
+                venue_id: 'Espacio',
+                status: 'Estado',
+                // Agrega más campos si es necesario
+            };
+
             // Historial de cambios
             const historyEntries = [];
             for (const key in data) {
                 if (originalReservation[key] !== data[key]) {
+                    let oldValue = originalReservation[key];
+                    let newValue = data[key];
+
+                    if (key === 'start_time' || key === 'end_time') {
+                        oldValue = formatTime(originalReservation[key]);
+                        newValue = formatTime(data[key]);
+                    } else if (key === 'reservation_date') {
+                        oldValue = formatDate(originalReservation[key]);
+                        newValue = formatDate(data[key]);
+                    } else if (key === 'venue_id') {
+                        oldValue = oldVenueName;
+                        newValue = newVenueName;
+                    }
+
+                    const fieldName = fieldLabels[key] || key;
+
                     historyEntries.push({
                         user_id: req.user_id,
-                        action_changed: `${key} de ${originalReservation[key]} a ${data[key]}`,
+                        action_changed: `${fieldName} de ${oldValue} a ${newValue}`,
                         reservation_folio: folio
                     });
                 }
@@ -157,7 +214,7 @@ const ReservationController = {
                 await ChangeHistoryModel.create(entry);
             }
 
-            // Actualización
+            // Actualización de la reservación
             const updatedReservation = await ReservationModel.updateReservationByFolio(folio, data);
             res.json(updatedReservation);
 
@@ -165,7 +222,12 @@ const ReservationController = {
             console.error('Error en update:', error);
             res.status(500).json({ error: 'Error al actualizar la reservación' });
         }
-    },
+    }
+    ,
+
+
+
+
 
     // Verificar disponibilidad
     async verifyAvailability(req, res) {
@@ -187,6 +249,27 @@ const ReservationController = {
         } catch (error) {
             console.error('Error en verifyAvailability:', error);
             res.status(500).json({ error: 'Error al verificar disponibilidad' });
+        }
+    },
+    // Obtener una reservación por folio, incluyendo el estado actual y el historial de cambios
+    async getByFolioForUsers(req, res) {
+        const { folio } = req.params;  // El folio se obtiene desde los parámetros de la URL
+
+        try {
+            // Llamada a la función del modelo que obtiene la reserva y su historial
+            const reservationDetails = await ReservationModel.getByFolioForUsers(folio);
+
+            // Verificamos si la reserva fue encontrada
+            if (!reservationDetails) {
+                return res.status(404).json({ error: 'Reserva no encontrada' });
+            }
+
+            // Respondemos con la información combinada de la reserva y su historial
+            res.json(reservationDetails);
+
+        } catch (error) {
+            console.error('Error en getByFolioForUsers:', error);
+            res.status(500).json({ error: 'Error al obtener la reservación o el historial' });
         }
     }
 

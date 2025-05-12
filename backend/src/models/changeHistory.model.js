@@ -34,7 +34,7 @@ const ChangeHistoryModel = {
             ORDER BY ch.action_date DESC
         `, [folio]);
         return result.rows;
-}
+    }
 };
 
 module.exports = ChangeHistoryModel;

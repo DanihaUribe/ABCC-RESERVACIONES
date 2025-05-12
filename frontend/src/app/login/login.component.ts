@@ -25,7 +25,7 @@ export class LoginComponent {
     });
   }
 
-  onSubmit() {
+onSubmit() {
     if (this.loginForm.valid) {
       const credentials = this.loginForm.value;
       this.authService.login(credentials).subscribe({
@@ -48,30 +48,43 @@ export class LoginComponent {
             this.router.navigate(['/user-home']);
           }
 
-          // Mostrar alerta de éxito con SweetAlert
+          // Mostrar notificación tipo toast de éxito en la esquina superior derecha
           Swal.fire({
             icon: 'success',
             title: 'Login exitoso',
-            text: '¡Bienvenido de nuevo!'
+            text: '¡Bienvenido de nuevo!',
+            position: 'top-end', // Configurar la posición a la esquina superior derecha
+            showConfirmButton: false, // Eliminar el botón de confirmación
+            timer: 3000, // Desaparece después de 3 segundos
+            toast: true, // Activar modo toast
           });
         },
         error: (error) => {
           console.error('Error en el login:', error);
-          // Mostrar alerta de error con SweetAlert
+          // Mostrar notificación tipo toast de error en la esquina superior derecha
           Swal.fire({
             icon: 'error',
             title: 'Error en el login',
-            text: 'Credenciales incorrectas o error en el servidor. Intenta nuevamente.'
+            text: 'Credenciales incorrectas o error en el servidor. Intenta nuevamente.',
+            position: 'top-end', // Configurar la posición a la esquina superior derecha
+            showConfirmButton: false, // Eliminar el botón de confirmación
+            timer: 3000, // Desaparece después de 3 segundos
+            toast: true, // Activar modo toast
           });
         }
       });
     } else {
-      // Si el formulario no es válido, muestra un mensaje de advertencia
+      // Si el formulario no es válido, muestra una notificación de advertencia tipo toast
       Swal.fire({
         icon: 'warning',
         title: 'Formulario incompleto',
-        text: 'Por favor, completa todos los campos requeridos.'
+        text: 'Por favor, completa todos los campos requeridos.',
+        position: 'top-end', // Configurar la posición a la esquina superior derecha
+        showConfirmButton: false, // Eliminar el botón de confirmación
+        timer: 3000, // Desaparece después de 3 segundos
+        toast: true, // Activar modo toast
       });
     }
-  }
+}
+
 }

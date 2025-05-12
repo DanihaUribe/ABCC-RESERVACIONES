@@ -20,6 +20,16 @@ export class ReservationService {
     const url = `${this.apiUrl}/${folio}`;
     return this.http.get(url);
   }
+  getByFolioForUsers(folio: string) {
+    const url = `${this.apiUrl}/user/${folio}`;
+    return this.http.get(url);
+  }
+  createReservation(reservationData: any): Observable<any> {
+    return this.http.post(this.apiUrl, reservationData);
+  }
+
+
+
 
 
   updateReservationStatus(folio: string, status: string, token: string) {

@@ -5,6 +5,7 @@ import { UserHomeComponent } from './pages/user-home/user-home.component';
 import { AuthGuard } from './guards/auth.guard';
 import { ReservationAvailabilityComponent } from './pages/reservation-availability/reservation-availability.component';
 import { EditReservationComponent } from './pages/edit-reservation/edit-reservation.component';
+import { FindFolioUserComponent } from './pages/find-folio-user/find-folio-user.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -18,6 +19,10 @@ export const routes: Routes = [
   {
     path: 'user-home',
     component: UserHomeComponent,
+    data: { roles: ['Empleado'] }
+  }, {
+    path: 'user-search-folio',
+    component: FindFolioUserComponent,
     data: { roles: ['Empleado'] }
   },
   {

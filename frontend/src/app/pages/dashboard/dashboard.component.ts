@@ -25,7 +25,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   private pollingInterval: any;
   username: string | null = null;
-  
+
   constructor(
     private router: Router,
     private reservationService: ReservationService,

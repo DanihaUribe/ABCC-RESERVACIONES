@@ -1,58 +1,187 @@
-<div class="container mt-4">
-    <!-- Selector de Lugar y Fecha -->
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label for="venue" class="form-label">Lugar</label>
-            <select id="venue" class="form-select" [(ngModel)]="selectedVenue" (ngModelChange)="loadReservations()">
-                <option *ngFor="let venue of venues" [ngValue]="venue" [selected]="venue === venues[0]">
-                    {{ venue.name_venue }}
-                </option>
-            </select>
-        </div>
+<app-navbar-user></app-navbar-user>
 
-        <div class="col-md-6">
-            <label for="date" class="form-label">Fecha</label>
-            <input type="date" id="date" class="form-control" [(ngModel)]="today" (ngModelChange)="loadReservations()">
+<!-- Barra de pasos -->
+<ul class="nav nav-tabs mb-4 " style="border-radius: 5px; padding: 40px 0px 0px 10%;">
+    <li class="nav-item" *ngFor="let step of steps; let i = index">
+        <a class="nav-link" [class.active]="currentStep === i" (click)="goToStep(i)">
+            Paso {{ i + 1 }}
+        </a>
+    </li>
+</ul>
+
+<!-- Contenido de los pasos -->
+<div class="container">
+
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card p-4 shadow-sm" style="height: 450px; display: flex; flex-direction: column;">
+
+
+                <!-- Paso 1: Selección de lugar -->
+                <div *ngIf="currentStep === 0" class="flex-grow-1" style="overflow-y: auto;">
+
+
+                    <div *ngIf="currentStep === 0" class="flex-grow-1" style="overflow-y: auto;">
+                        <div class="mb-3">
+                            <div class="mb-3">
+                                <h5 class="text-primary font-weight-bold">Elige el lugar en donde quieres hacer la
+                                    reservación:</h5>
+                            </div>
+                            <select id="venue" class="form-select" [(ngModel)]="selectedVenue"
+                                (ngModelChange)="loadReservations()">
+                                <option *ngFor="let venue of venues" [ngValue]="venue">
+                                    {{ venue.name_venue }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Mostrar detalles del lugar seleccionado -->
+                        <div *ngIf="selectedVenue" class="mt-4" style=" padding-top: 50px;">
+                            <!-- Título con mayor énfasis -->
+                            <div class="mb-3">
+                                <h5 class="text-primary font-weight-bold">Detalles del lugar seleccionado</h5>
+                            </div>
+
+                            <!-- Tabla sin bordes para detalles con leyendas -->
+                            <table class="table table-borderless w-100 ">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted fw-semibold" style="width: 130px;">Descripción:</td>
+                                        <td class="text-muted">{{ selectedVenue.description }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold" style="width: 130px;">Capacidad:</td>
+                                        <td class="text-muted">{{ selectedVenue.capacity }} Personas</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- Paso 2: Selección de fecha y horario -->
+                <div *ngIf="currentStep === 1" class="flex-grow-1" style="overflow-y: auto; overflow-x: hidden;">
+                    <div class="mb-3">
+                        <h5 class="text-primary font-weight-bold">Elige la fecha para su reservación:</h5>
+                        <input type="date" id="date" class="form-control" [(ngModel)]="today"
+                            (ngModelChange)="loadReservations()">
+                    </div>
+
+                    <!-- FILA PARA LAS HORAS -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="startTime" class="form-label">Hora de inicio:</label>
+                            <input type="time" class="form-control" [(ngModel)]="startTime" min="08:00" max="19:00">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endTime" class="form-label">Hora de fin:</label>
+                            <input type="time" class="form-control" [(ngModel)]="endTime" min="08:00" max="19:00">
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Espacios para reservaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let slot of availableSlots">
+                                    <td>
+                                        <p [ngClass]="{
+                            'p-disponible': slot.status === 'Disponible',
+                            'p-ocupado': slot.status !== 'Disponible'
+                        }">
+                                            {{ formatTo12Hour(slot.start) }} - {{ formatTo12Hour(slot.end) }} <br>
+                                            {{ slot.status === 'Disponible' ? 'Disponible' : 'Ocupado' }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <!-- Paso 3: Datos del solicitante -->
+                <div *ngIf="currentStep === 2" class="flex-grow-1">
+                    <h5 class="text-primary font-weight-bold">Datos del solicitante:</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Nombre del solicitante"
+                                [(ngModel)]="applicantName">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Departamento elegido"
+                                [value]="selectedVenue?.name_venue" disabled>
+                        </div>
+                        <div class="col-12">
+                            <input type="text" class="form-control" placeholder="Descripción de la reservación"
+                                [(ngModel)]="reservationDescription">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 4: Confirmación -->
+                <!-- Paso 4: Confirmación -->
+                <div *ngIf="currentStep === 3" class="flex-grow-1" style="overflow-y: auto;">
+                    <h5 class="text-primary font-weight-bold mb-4">Resumen de la solicitud</h5>
+
+                    <table class="table table-borderless w-100">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-semibold">Solicitante:</td>
+                                <td class="text-muted">{{ applicantName }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold" style="width: 150px;">Lugar:</td>
+                                <td class="text-muted">{{ selectedVenue?.name_venue }}</td>
+                                <!-- Aquí se muestra el nombre -->
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Fecha:</td>
+                                <td class="text-muted">{{ today }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Hora inicio:</td>
+                                <td class="text-muted">{{  formatTo12Hour(startTime) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Hora fin:</td>
+                                <td class="text-muted">{{formatTo12Hour(endTime)  }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Duración:</td>
+                                <td class="text-muted">{{ getDuration() }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">Descripción:</td>
+                                <td class="text-muted">{{ reservationDescription }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div *ngIf="getValidationMessage()" class="text-danger mt-3 fw-semibold">
+                     {{ getValidationMessage() }}
+                    </div>
+                    <button class="btn btn-success" (click)="makeReservation()" [disabled]="!isFormValid()">
+                        Hacer solicitud
+                    </button>
+
+                </div>
+
+
+            </div>
+
+            <!-- Navegación -->
+            <div class="mt-4 d-flex justify-content-between">
+                <button class="btn btn-secondary" (click)="prevStep()" [disabled]="currentStep === 0">Anterior</button>
+                <button class="btn btn-primary" (click)="nextStep()"
+                    [disabled]="currentStep === steps.length - 1">Siguiente</button>
+            </div>
         </div>
     </div>
-
-    <!-- Mostrar Tabla de Horarios (según la selección de lugar y fecha) -->
-    <div class="mb-3 text-center  ">
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">Espacios para reservaciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- 
-                <tr *ngFor="let slot of availableSlots">
-                    <td>
-                        <p [ngClass]="{
-                                'p-aprobada': slot.status === 'Aprobada',
-                                'p-rechazada': slot.status === 'Rechazada',
-                                'p-pendiente': slot.status === 'Pendiente',
-                                'p-disponible': slot.status === 'Disponible'
-                            }">
-                            {{ slot.start }} - {{ slot.end }} {{ slot.status }}
-                        </p>
-                    </td>
-                </tr>
-                -->
-                <tr *ngFor="let slot of availableSlots">
-                    <td>
-                        <p [ngClass]="{
-          'p-disponible': slot.status === 'Disponible',
-          'p-ocupado': slot.status !== 'Disponible'
-        }">
-                            {{ formatTo12Hour(slot.start) }} - {{ formatTo12Hour(slot.end) }} <br>
-                            {{ slot.status === 'Disponible' ? 'Disponible' : 'Ocupado' }}
-                        </p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
 
 </div>

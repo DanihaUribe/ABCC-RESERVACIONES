@@ -1,1 +1,57 @@
-<p>user-home works!</p>
+<app-navbar-user></app-navbar-user>
+
+<div class="container mt-5">
+  <!-- Título o encabezado opcional -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">Reservaciones</h2>
+    <p class="text-muted">Selecciona un lugar y una fecha para ver los espacios disponibles.</p>
+  </div>
+
+  <!-- Selector de Lugar y Fecha -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="form-floating">
+        <select id="venue" class="form-select" [(ngModel)]="selectedVenue" (ngModelChange)="loadReservations()">
+          <option *ngFor="let venue of venues" [ngValue]="venue" [selected]="venue === venues[0]">
+            {{ venue.name_venue }}
+          </option>
+        </select>
+        <label for="venue">Lugar</label>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="form-floating">
+        <input type="date" id="date" class="form-control" [(ngModel)]="today" (ngModelChange)="loadReservations()"
+          [min]="today" />
+        <label for="date">Fecha</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Horarios -->
+  <div class="text-center">
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover shadow-sm">
+        <thead class="table-light">
+          <tr>
+            <th scope="col" class="text-center fs-5">Espacios para reservaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let slot of availableSlots">
+            <td>
+              <p [ngClass]="{
+                'p-disponible': slot.status === 'Disponible',
+                'p-ocupado': slot.status !== 'Disponible'
+              }">
+                {{ formatTo12Hour(slot.start) }} - {{ formatTo12Hour(slot.end) }} <br>
+                {{ slot.status === 'Disponible' ? 'Disponible' : 'Ocupado' }}
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
