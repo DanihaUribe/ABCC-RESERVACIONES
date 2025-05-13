@@ -65,8 +65,8 @@
                 <div *ngIf="currentStep === 1" class="flex-grow-1" style="overflow-y: auto; overflow-x: hidden;">
                     <div class="mb-3">
                         <h5 class="text-primary font-weight-bold">Elige la fecha para su reservación:</h5>
-                        <input type="date" id="date" class="form-control" [(ngModel)]="today"
-                            (ngModelChange)="loadReservations()">
+                        <input type="date" id="date" class="form-control" [(ngModel)]="today" [min]="minDate"
+                            (ngModelChange)="loadReservations()" >
                     </div>
 
                     <!-- FILA PARA LAS HORAS -->
@@ -92,9 +92,9 @@
                                 <tr *ngFor="let slot of availableSlots">
                                     <td>
                                         <p [ngClass]="{
-                            'p-disponible': slot.status === 'Disponible',
-                            'p-ocupado': slot.status !== 'Disponible'
-                        }">
+                                            'p-disponible': slot.status === 'Disponible',
+                                            'p-ocupado': slot.status !== 'Disponible'
+                                        }">
                                             {{ formatTo12Hour(slot.start) }} - {{ formatTo12Hour(slot.end) }} <br>
                                             {{ slot.status === 'Disponible' ? 'Disponible' : 'Ocupado' }}
                                         </p>
@@ -147,11 +147,11 @@
                             </tr>
                             <tr>
                                 <td class="text-muted fw-semibold">Hora inicio:</td>
-                                <td class="text-muted">{{  formatTo12Hour(startTime) }}</td>
+                                <td class="text-muted">{{ formatTo12Hour(startTime) }}</td>
                             </tr>
                             <tr>
                                 <td class="text-muted fw-semibold">Hora fin:</td>
-                                <td class="text-muted">{{formatTo12Hour(endTime)  }}</td>
+                                <td class="text-muted">{{formatTo12Hour(endTime) }}</td>
                             </tr>
                             <tr>
                                 <td class="text-muted fw-semibold">Duración:</td>
@@ -164,7 +164,7 @@
                         </tbody>
                     </table>
                     <div *ngIf="getValidationMessage()" class="text-danger mt-3 fw-semibold">
-                     {{ getValidationMessage() }}
+                        {{ getValidationMessage() }}
                     </div>
                     <button class="btn btn-success" (click)="makeReservation()" [disabled]="!isFormValid()">
                         Hacer solicitud

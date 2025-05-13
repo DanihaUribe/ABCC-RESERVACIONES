@@ -4,10 +4,10 @@ import { VenueService } from '../../services/venue/venue.service';
 import { ReservationService } from '../../services/reservation/reservation.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import Swal from 'sweetalert2';
 @Component({
   selector: 'app-user-home',
-  imports: [NavbarUserComponent,CommonModule, FormsModule],
+  imports: [NavbarUserComponent, CommonModule, FormsModule],
   templateUrl: './user-home.component.html',
   styleUrl: './user-home.component.scss'
 })
@@ -17,13 +17,18 @@ export class UserHomeComponent implements OnInit {
   reservationsByDate: any[] = [];
   venues: any[] = [];
   selectedVenue: any;
+
   today: string = (() => {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-})();
+    const d = new Date();
+    d.setDate(d.getDate() + 1); // mañana
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  })();
+
+  // Esta será usada como límite mínimo en el input, y no cambia
+  minDate: string = this.today;
 
   availableSlots: any[] = []; // Para almacenar los intervalos disponibles
 
@@ -42,7 +47,12 @@ export class UserHomeComponent implements OnInit {
         console.log('termino de cargar la info');
       },
       (error) => {
-        console.error('Error al obtener los lugares:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al cargar lugares',
+          text: 'No se pudieron obtener los lugares. Intenta nuevamente más tarde.',
+          confirmButtonText: 'Aceptar'
+        });
       }
     );
   }
@@ -54,7 +64,12 @@ export class UserHomeComponent implements OnInit {
         this.calculateAvailableSlots();
       },
       (error) => {
-        console.error('Error al obtener reservas:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al cargar obtener reservas',
+          text: 'No se pudieron obtener las reservas. Intenta nuevamente más tarde.',
+          confirmButtonText: 'Aceptar'
+        });
       }
     );
   }
@@ -68,17 +83,15 @@ export class UserHomeComponent implements OnInit {
     this.availableSlots = []; // Limpiar los intervalos anteriores
 
     // Iterar por las reservas y encontrar intervalos libres, al llegar al final se sale
-     console.log('BUSCANDO INTERVALOS');
     for (let i = 0; i < this.reservationsByDate.length; i++) {
-      
+
       const reservation = this.reservationsByDate[i];
       const reservationStartTime = this.timeToMinutes(reservation.start_time);
-      const reservationEndTime = this.timeToMinutes(reservation.end_time); 
+      const reservationEndTime = this.timeToMinutes(reservation.end_time);
 
       // si nuestra primera reserva no es a las 8, no sera  menor por lo que entrara
       //de ser a las 8 se lo salta
       if (reservationStartTime > previousEndTime) {
-        console.log('PRIMER DISPONIBLE:',reservationStartTime,'>', previousEndTime);
         this.availableSlots.push({
           start: this.minutesToTime(previousEndTime),
           end: this.minutesToTime(reservationStartTime),
@@ -87,7 +100,6 @@ export class UserHomeComponent implements OnInit {
       }
 
       // añadimos la reserva que ya sabemos es la siguiente
-      console.log('RESERVA actual');
       this.availableSlots.push({
         start: reservation.start_time,
         end: reservation.end_time,
@@ -99,15 +111,12 @@ export class UserHomeComponent implements OnInit {
 
     // Verificar si hay espacio libre después de la última reserva
     if (previousEndTime < endOfDay) {
-      console.log('hay espacio libre despues de la ultima reserva!',previousEndTime, '<',endOfDay );
       this.availableSlots.push({
         start: this.minutesToTime(previousEndTime),
         end: this.minutesToTime(endOfDay),
         status: 'Disponible'
       });
     }
-
-    console.log('-');
   }
 
   // Función para convertir hora en formato HH:MM:SS a minutos
@@ -124,16 +133,16 @@ export class UserHomeComponent implements OnInit {
   }
 
   formatTo12Hour(time: string): string {
-  const [hourStr, minuteStr] = time.split(':');
-  let hour = parseInt(hourStr, 10);
-  const minute = minuteStr;
-  const ampm = hour >= 12 ? 'PM' : 'AM';
+    const [hourStr, minuteStr] = time.split(':');
+    let hour = parseInt(hourStr, 10);
+    const minute = minuteStr;
+    const ampm = hour >= 12 ? 'PM' : 'AM';
 
-  hour = hour % 12;
-  hour = hour ? hour : 12; // 0 => 12
+    hour = hour % 12;
+    hour = hour ? hour : 12; // 0 => 12
 
-  return `${hour}:${minute} ${ampm}`;
-}
+    return `${hour}:${minute} ${ampm}`;
+  }
 
 
 

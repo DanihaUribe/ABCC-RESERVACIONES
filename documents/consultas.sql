@@ -38,6 +38,11 @@ CREATE TABLE change_history (
 );
 
 
+
+
+
+
+
 -- SEEDERS: Espacios definidos ('venue')
 INSERT INTO venue (name_venue, capacity, description) VALUES  -- Usando name_venue
 ('Sala de reuniones pequeña', 10, 'Oficina audiovisual del tercer piso'),

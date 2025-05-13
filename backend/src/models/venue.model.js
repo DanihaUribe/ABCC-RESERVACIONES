@@ -1,10 +1,4 @@
-/*
-venue.model.js (Espacios)
-getAll() — Obtener todos los espacios
-getById(id) — Obtener un espacio por ID
-create({ name, capacity, description })
-update(id, data) — Actualizar un espacio
-*/
+
 const db = require('../config/db');
 const VenueModel = {
     

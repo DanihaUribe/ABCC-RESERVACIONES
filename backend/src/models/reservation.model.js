@@ -1,21 +1,8 @@
-/*
-reservation.model.js (Reservas)
-
-getByFolio(folio)
-getByDateAndVenue(venueId, date) — Consultar reservas por espacio y día
-create({ folio, requesterName, venueId, reservationDate, startTime, endTime, status, description })
-updateReservationByFolio(folio, data) — Editar uno o varios campos a la vez (espacio, fecha, hora, estado)
-getAll() — Solo para administradores
-verifyAvailability(venueId, date, startTime, endTime) — Verificar disponibilidad real
-
-
-*/
 const moment = require('moment');
 const db = require('../config/db');
 
 
 const ReservationModel = {
-
     // Trae una reservación por el folio
     async getByFolio(folio) {
         const result = await db.query(`
@@ -42,7 +29,6 @@ const ReservationModel = {
             AND reservation.status IN ('Pendiente', 'Aprobada')
             ORDER BY reservation.start_time ASC
         `, [venueId, date]);
-
         return result.rows;
     },
 
@@ -50,7 +36,6 @@ const ReservationModel = {
     async create({ requesterName, venueId, reservationDate, startTime, endTime, status, description }) {
         const countResult = await db.query(`SELECT COUNT(*) FROM reservation`);
         const count = parseInt(countResult.rows[0].count) + 1;
-
         const now = moment();
         const datePart = now.format('YYMMDD');
         const timePart = now.format('HHmm');
@@ -118,8 +103,6 @@ const ReservationModel = {
               (start_time < $4 AND end_time > $3)
           )
         `;
-
-
         // Si la actualización de una reserva está en curso, excluimos la propia reserva
         if (reservationId) {
             query += ` AND folio != $5`; //excluir la reserva actual
@@ -127,10 +110,10 @@ const ReservationModel = {
 
         const values = reservationId ? [venueId, date, startTime, endTime, reservationId] : [venueId, date, startTime, endTime];
         const result = await db.query(query, values);
-
         // Si hay resultados, significa que el espacio ya está ocupado
         return result.rows.length === 0;
     },
+
     // Trae una reservación por el folio con su historial de cambios
     async getByFolioForUsers(folio) {
         try {
@@ -173,8 +156,7 @@ const ReservationModel = {
             };
 
         } catch (error) {
-            console.error('Error al obtener la reserva o el historial:', error);
-            throw error;  // Puedes manejar el error de la manera que prefieras (por ejemplo, con una respuesta HTTP adecuada)
+            throw error; 
         }
 
     }

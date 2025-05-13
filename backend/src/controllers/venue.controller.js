@@ -11,7 +11,6 @@ const VenueController = {
             res.status(500).json({ message: 'Error al obtener los espacios' });
         }
     },
-
     // Obtener un espacio por ID
     async getVenueById(req, res) {
         const { id } = req.params;
@@ -26,7 +25,6 @@ const VenueController = {
             res.status(500).json({ message: 'Error al obtener el espacio' });
         }
     },
-
     // Crear un nuevo espacio
     async createVenue(req, res) {
         const { name_venue, capacity, description } = req.body;
@@ -37,7 +35,6 @@ const VenueController = {
             res.status(500).json({ message: 'Error al crear el espacio' });
         }
     },
-
     // Actualizar un espacio
     async updateVenue(req, res) {
         const { id } = req.params;

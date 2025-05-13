@@ -20,12 +20,12 @@ export class EditReservationComponent implements OnInit {
   venues: any[] = [];
   selectedVenue: any;
   today: string = (() => {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-})();
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  })();
   availableSlots: any[] = [];
   folioActual: string = '';
   reservationToEdit: any = null;
@@ -44,7 +44,16 @@ export class EditReservationComponent implements OnInit {
     this.route.queryParamMap.subscribe(params => {
       const folio = params.get('folio');
       if (!folio) {
-        console.error('No se proporcionó un folio en la URL.');
+        if (!folio) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Folio no proporcionado',
+            text: 'No se especificó un folio en la URL.',
+            confirmButtonText: 'Aceptar'
+          });
+          this.loading = false;
+          return;
+        }
         this.loading = false;
         return;
       }
@@ -67,13 +76,24 @@ export class EditReservationComponent implements OnInit {
               this.loading = false;
             },
             (error) => {
-              console.error('Error al obtener los lugares:', error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error al cargar lugares',
+                text: 'No se pudieron obtener los lugares. Intenta nuevamente más tarde.',
+                confirmButtonText: 'Aceptar'
+              });
               this.loading = false;
             }
           );
+
         },
         (error) => {
-          console.error('Error al obtener la reserva por folio:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error obtener la reserva por folio',
+            text: 'No se pudo obtener la reserva. Intenta nuevamente más tarde.',
+            confirmButtonText: 'Aceptar'
+          });
           this.loading = false;
         }
       );
@@ -93,6 +113,7 @@ export class EditReservationComponent implements OnInit {
     const paddedMins = mins.toString().padStart(2, '0');
     return `${paddedHrs}:${paddedMins}`;
   }
+
   loadReservations() {
     if (this.selectedVenue) {
       this.reservationsService.getByDateAndVenue(this.selectedVenue.venue_id, this.today).subscribe(
@@ -101,7 +122,12 @@ export class EditReservationComponent implements OnInit {
           this.calculateAvailableSlots();
         },
         (error) => {
-          console.error('Error al obtener reservas:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error obtener la reserva',
+            text: 'No se pudo obtener la reserva. Intenta nuevamente más tarde.',
+            confirmButtonText: 'Aceptar'
+          });
         }
       );
     }
@@ -192,20 +218,21 @@ export class EditReservationComponent implements OnInit {
         const folio = this.reservationToEdit.folio;
         const status = 'Cancelada';
 
-        console.log('Enviando cancelación con los siguientes datos:', {
-          folio,
-          status,
-          token
-        });
-
+        // Llamar al servicio para cancelar la reserva
         this.reservationsService.updateReservationStatus(folio, status, token).subscribe({
           next: (response) => {
             this.reservationToEdit.status = 'Cancelada';
-            Swal.fire('Cancelada', 'La reserva ha sido cancelada con éxito.', 'success');
+            Swal.fire('Cancelada', 'La reserva ha sido cancelada con éxito.', 'success')
+              .then(() => {
+                this.router.navigate(['/dashboard']);
+              });
           },
           error: (error) => {
-            console.error('Error al cancelar la reserva:', error);
-            Swal.fire('Error', 'No se pudo cancelar la reserva.', 'error');
+            if (error.status === 403) {
+              Swal.fire('Acceso denegado', 'Solo los administradores pueden cancelar una reservación.', 'warning');
+            } else {
+              Swal.fire('Error', 'No se pudo cancelar la reserva.', 'error');
+            }
           }
         });
       }
@@ -225,7 +252,6 @@ export class EditReservationComponent implements OnInit {
 
     this.reservationsService.updateReservation(folio, data, token).subscribe({
       next: (res) => {
-        console.log('Reservación actualizada:', res);
         // Mostrar alerta de éxito con SweetAlert
         Swal.fire({
           icon: 'success',
@@ -238,8 +264,6 @@ export class EditReservationComponent implements OnInit {
         });
       },
       error: (err) => {
-        console.error('Error al actualizar:', err);
-
         // Si el error es debido a la disponibilidad del espacio
         if (err?.status === 409) {
           Swal.fire({
@@ -257,7 +281,6 @@ export class EditReservationComponent implements OnInit {
             confirmButtonText: 'Cerrar'
           });
         } else {
-          // Error genérico para otros tipos de errores
           Swal.fire({
             icon: 'error',
             title: 'Error al actualizar',

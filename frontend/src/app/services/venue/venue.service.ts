@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class VenueService {
 
-  private apiUrl = 'http://localhost:3000/api/venues';  // URL de tu API
+  private apiUrl = 'http://localhost:3000/api/venues';
 
   constructor(private http: HttpClient) { }
 

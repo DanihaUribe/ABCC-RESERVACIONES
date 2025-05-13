@@ -1,28 +1,28 @@
 .select-aprobada {
-  background-color: #C8E6C9; /* Verde suave */
+  background-color: #C8E6C9;
   border: 2px solid #81C784;
   color: #2E7D32;
 }
 
 .select-rechazada {
-  background-color: #FFCDD2; /* Rojo suave */
+  background-color: #FFCDD2;
   border: 2px solid #E57373;
   color: #C62828;
 }
 
 .select-pendiente {
-  background-color: #FFF9C4; /* Amarillo suave */
+  background-color: #FFF9C4;
   border: 2px solid #c5ba56;
   color: #c09317;
 }
 .table-responsive {
-  max-height: 100vh;  /* Ajusta el valor según el alto que desees */
+  max-height: 100vh;
 }
 
 .pagination {
   position: sticky;
   bottom: 0;
-  background-color: #fff;  /* Fondo blanco para que no se mezcle con la tabla */
-  z-index: 10;  /* Asegura que la paginación esté siempre arriba de otros elementos */
-  margin-top: 10px;  /* Ajusta el espacio entre la tabla y la paginación */
+  background-color: #fff;
+  z-index: 10;
+  margin-top: 10px; 
 }

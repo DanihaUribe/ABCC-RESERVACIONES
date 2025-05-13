@@ -1,4 +1,3 @@
-// src/app/pages/dashboard/dashboard.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReservationService } from '../../services/reservation/reservation.service';
@@ -12,8 +11,8 @@ import { NavbarComponent } from '../../shared/navbar/navbar.component';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true, // Asegúrate de marcarlo como standalone
-  imports: [CommonModule, FormsModule, NavbarComponent ],  // Aquí importas CommonModule
+  standalone: true,
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -33,11 +32,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.getReservations(); // Obtener las reservaciones inicialmente
+    this.getReservations();
     // Actualizar las reservaciones cada 10 segundos
     this.pollingInterval = setInterval(() => {
       this.getReservations();
-    }, 10000); // 10000ms = 10 segundos
+    }, 10000);
   }
 
   ngOnDestroy() {
@@ -49,92 +48,76 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 
 
- getHistoryByFolio(reservation: any) {
-  const folio = reservation.folio;
-  const token = localStorage.getItem('token');
-  console.log(`Requesting URL: http://localhost:3000/api/change-history/${folio}`);
-  
-  this.loading = true;  // Iniciamos la carga
+  getHistoryByFolio(reservation: any) {
+    const folio = reservation.folio;
+    const token = localStorage.getItem('token');
+    this.loading = true;
 
-  if (token) {
-    this.historyService.getReservationHistory(folio, token).subscribe({
-      next: (data: any) => {
-        this.history = data;  // Asignamos los datos de la respuesta de la API
-        this.errorMessage = '';  // Limpiamos cualquier mensaje de error previo
-        this.loading = false;  // Terminamos la carga
-      },
-      error: (err: any) => {
-        console.error('Error al obtener el historial de la reservación', err);
-        this.history = [];  // Limpiamos el historial en caso de error
-        this.errorMessage = 'Hubo un problema al obtener el historial.';  // Mensaje de error
-        this.loading = false;  // Terminamos la carga
-      }
-    });
-  } else {
-    this.loading = false;
-    console.log('No token found');
-    this.errorMessage = 'No se encontró un token válido.';  // Mensaje si no hay token
-  }
-}
-
-openHistoryModal(reservation: any) {
-  console.log('abrir');
-  const folio = reservation.folio;
-  const token = localStorage.getItem('token');
-
-  if (token) {
-    console.log('if');
-    this.historyService.getReservationHistory(folio, token).subscribe({
-      next: (data: any) => {
-        // Si la API devuelve un error (código 400), mostramos el SweetAlert
-        if (data && data.error) {
-          console.log('if sweet alert');
-          Swal.fire({
-            icon: 'info',
-            title: 'No se encontraron registros',
-            text: data.error,  // Mostramos el error de la API
-          });
-        } else {
-          console.log('data');
+    if (token) {
+      this.historyService.getReservationHistory(folio, token).subscribe({
+        next: (data: any) => {
           this.history = data;
+          this.errorMessage = '';
+          this.loading = false;
+        },
+        error: (err: any) => {
+          this.history = [];  // Limpiamos el historial en caso de error
+          this.errorMessage = 'Hubo un problema al obtener el historial.';
+          this.loading = false;
+        }
+      });
+    } else {
+      this.loading = false;
+      this.errorMessage = 'No se encontró un token válido.';
+    }
+  }
 
-          // Mostrar el modal si no hay error
-          const modalElement = document.getElementById('historyModal');
-          if (modalElement) {
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
+  openHistoryModal(reservation: any) {
+    const folio = reservation.folio;
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      this.historyService.getReservationHistory(folio, token).subscribe({
+        next: (data: any) => {
+          if (data && data.error) {
+            Swal.fire({
+              icon: 'info',
+              title: 'No se encontraron registros',
+              text: data.error,
+            });
+          } else {
+            this.history = data;
+            const modalElement = document.getElementById('historyModal');
+            if (modalElement) {
+              const modal = new bootstrap.Modal(modalElement);
+              modal.show();
+            }
+          }
+        },
+        error: (err) => {
+          if (err.status === 404) {
+            Swal.fire({
+              icon: 'info',
+              title: 'No se encontraron registros',
+              text: 'No hay historial para este folio.',
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Hubo un problema al obtener el historial.',
+            });
           }
         }
-      },
-      error: (err) => {
-        console.log('error');
-        console.error('Error al obtener el historial', err.status);
-        // Aquí puedes manejar otros tipos de errores si la respuesta no es un 400
-        if (err.status === 404) {
-          Swal.fire({
-            icon: 'info',
-            title: 'No se encontraron registros',
-            text: 'No hay historial para este folio.',
-          });
-        } else {
-          // Para otros errores puedes personalizar el mensaje
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Hubo un problema al obtener el historial.',
-          });
-        }
-      }
-    });
-  } else {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Token no encontrado',
-      text: 'No se encontró un token válido.',
-    });
+      });
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Token no encontrado',
+        text: 'No se encontró un token válido.',
+      });
+    }
   }
-}
-
 
   getReservations() {
     const token = localStorage.getItem('token');
@@ -142,16 +125,16 @@ openHistoryModal(reservation: any) {
       this.reservationService.getReservations(token).subscribe({
         next: (data: any) => {
           this.reservations = data; // Asignar los nuevos datos
-          this.loading = false; // Detener carga si se obtuvo correctamente
+          this.loading = false;
         },
         error: (err: any) => {
-          console.error('Error al obtener las reservaciones', err);
-          this.loading = false; // Detener carga si hay error
+          //hubo error al obtener las reservaciones
+          this.loading = false;
         }
       });
     } else {
       this.loading = false;
-      console.log('No token found');
+      //No encontró un token válido
     }
   }
 
@@ -187,9 +170,19 @@ openHistoryModal(reservation: any) {
             // Si se hace "Deshacer", restaurar el estado anterior
             reservation.status = previousStatus;
             this.reservationService.updateReservationStatus(folio, previousStatus, token).subscribe({
-              next: () => console.log(`Folio ${folio} restaurado a estado anterior: ${previousStatus}`),
-              error: (err) => {
-                console.error(`Error restaurando folio ${folio}:`, err);
+              next: () => {
+                Swal.fire({
+                  icon: 'success',
+                  title: `Folio ${folio} restaurado`,
+                  text: `Estado anterior: ${previousStatus}`,
+                  toast: true,
+                  position: 'top-end',
+                  showConfirmButton: false,
+                  timer: 3000,
+                  timerProgressBar: true
+                });
+              },
+              error: () => {
                 Swal.fire('Error', 'No se pudo restaurar el estado anterior.', 'error');
               }
             });
@@ -197,7 +190,6 @@ openHistoryModal(reservation: any) {
         });
       },
       error: (err) => {
-        console.error(`Error actualizando folio ${folio}:`, err);
         Swal.fire('Error', 'No se pudo actualizar el estado en el servidor.', 'error');
       }
     });
@@ -205,13 +197,13 @@ openHistoryModal(reservation: any) {
 
 
 
-goToEdit(reservation: any) {
-  this.router.navigate(['/edit-reservation'], {
-    queryParams: {
-      folio: reservation.folio
-    }
-  });
-}
+  goToEdit(reservation: any) {
+    this.router.navigate(['/edit-reservation'], {
+      queryParams: {
+        folio: reservation.folio
+      }
+    });
+  }
 
   formatTo12Hour(time: string): string {
     const [hourStr, minuteStr] = time.split(':');
@@ -221,37 +213,37 @@ goToEdit(reservation: any) {
     return `${hour}:${minuteStr} ${ampm}`;
   }
 
-pageSize = 7;
-currentPage = 1;
+  pageSize = 7;
+  currentPage = 1;
 
-get totalPages(): number {
-  return Math.ceil(this.reservations.length / this.pageSize);
-}
-
-totalPagesArray(): number[] {
-  return Array(this.totalPages).fill(0).map((_, i) => i + 1);
-}
-
-paginatedReservations(): any[] {
-  const start = (this.currentPage - 1) * this.pageSize;
-  return this.reservations.slice(start, start + this.pageSize);
-}
-
-prevPage(): void {
-  if (this.currentPage > 1) {
-    this.currentPage--;
+  get totalPages(): number {
+    return Math.ceil(this.reservations.length / this.pageSize);
   }
-}
 
-nextPage(): void {
-  if (this.currentPage < this.totalPages) {
-    this.currentPage++;
+  totalPagesArray(): number[] {
+    return Array(this.totalPages).fill(0).map((_, i) => i + 1);
   }
-}
 
-goToPage(page: number): void {
-  this.currentPage = page;
-}
+  paginatedReservations(): any[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.reservations.slice(start, start + this.pageSize);
+  }
 
-  
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+  }
+
+
 }

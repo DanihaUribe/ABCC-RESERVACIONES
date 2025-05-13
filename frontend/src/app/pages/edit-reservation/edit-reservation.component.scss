@@ -1,18 +1,17 @@
 .p-aprobada, .p-rechazada, .p-pendiente, .p-disponible, .p-ocupado {
-  background-color: #C8E6C9; /* Color base por defecto */
+  background-color: #C8E6C9;
   color: #2E7D32;
   border-radius: 8px;
   padding: 4px 10%;
   font-weight: bold;
-  display: inline-block; /* Cambiado de block a inline-block para centrarlo */
+  display: inline-block;
   text-align: center;
   box-sizing: border-box;
   width: 100%;
-  margin: 0 auto; /* Centra horizontalmente */
+  margin: 0 auto;
   letter-spacing: 1px;
 }
 
-/* Colores por estado */
 .p-aprobada, .p-rechazada, .p-ocupado {
   background-color: #FFCDD2;
   color: #793434;

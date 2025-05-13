@@ -23,7 +23,7 @@
     <div class="col-md-6">
       <div class="form-floating">
         <input type="date" id="date" class="form-control" [(ngModel)]="today" (ngModelChange)="loadReservations()"
-          [min]="today" />
+          [min]="minDate" />
         <label for="date">Fecha</label>
       </div>
     </div>

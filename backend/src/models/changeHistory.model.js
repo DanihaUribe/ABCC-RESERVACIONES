@@ -1,9 +1,3 @@
-/*
-changeHistory.model.js (Historial de cambios)
-create({ userId, actionChanged, reservationFolio }) — Registrar cambio
-
-getByFolio(folio) — Ver historial de una reservación
-*/
 const db = require('../config/db');
 
 const ChangeHistoryModel = {

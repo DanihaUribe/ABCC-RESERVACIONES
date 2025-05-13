@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ReservationService {
-  private apiUrl = 'http://localhost:3000/api/reservations'; // URL de tu API
+  private apiUrl = 'http://localhost:3000/api/reservations';
 
   constructor(private http: HttpClient) { }
 
@@ -27,10 +27,6 @@ export class ReservationService {
   createReservation(reservationData: any): Observable<any> {
     return this.http.post(this.apiUrl, reservationData);
   }
-
-
-
-
 
   updateReservationStatus(folio: string, status: string, token: string) {
     const url = `${this.apiUrl}/${folio}`;

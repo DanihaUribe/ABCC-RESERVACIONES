@@ -18,16 +18,22 @@ export class ReservationAvailabilityComponent implements OnInit {
   reservationsByDate: any[] = [];
   venues: any[] = [];
   selectedVenue: any;
-  today: string = new Date().toISOString().split('T')[0];
+  today: string = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1); // mañana
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  })();
 
+  // Esta será usada como límite mínimo en el input, y no cambia
+  minDate: string = this.today;
   availableSlots: any[] = []; // Para almacenar los intervalos disponibles
   startTime: string = '';
   endTime: string = '';
   applicantName: string = '';
   reservationDescription: string = '';
-
-
-
 
 
   constructor(
@@ -45,10 +51,14 @@ export class ReservationAvailabilityComponent implements OnInit {
         this.selectedVenue = this.venues[0];
 
         this.loadReservations();
-        console.log('termino de cargar la info');
       },
       (error) => {
-        console.error('Error al obtener los lugares:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al cargar lugares',
+          text: 'No se pudieron obtener los lugares. Intenta nuevamente más tarde.',
+          confirmButtonText: 'Aceptar'
+        });
       }
     );
   }
@@ -60,7 +70,12 @@ export class ReservationAvailabilityComponent implements OnInit {
         this.calculateAvailableSlots();
       },
       (error) => {
-        console.error('Error al obtener reservas:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al obtener reservas',
+          text: 'No se pudieron obtener las reservas. Intenta nuevamente más tarde.',
+          confirmButtonText: 'Aceptar'
+        });
       }
     );
   }
@@ -74,9 +89,7 @@ export class ReservationAvailabilityComponent implements OnInit {
     this.availableSlots = []; // Limpiar los intervalos anteriores
 
     // Iterar por las reservas y encontrar intervalos libres, al llegar al final se sale
-    console.log('BUSCANDO INTERVALOS');
     for (let i = 0; i < this.reservationsByDate.length; i++) {
-
       const reservation = this.reservationsByDate[i];
       const reservationStartTime = this.timeToMinutes(reservation.start_time);
       const reservationEndTime = this.timeToMinutes(reservation.end_time);
@@ -84,7 +97,6 @@ export class ReservationAvailabilityComponent implements OnInit {
       // si nuestra primera reserva no es a las 8, no sera  menor por lo que entrara
       //de ser a las 8 se lo salta
       if (reservationStartTime > previousEndTime) {
-        console.log('PRIMER DISPONIBLE:', reservationStartTime, '>', previousEndTime);
         this.availableSlots.push({
           start: this.minutesToTime(previousEndTime),
           end: this.minutesToTime(reservationStartTime),
@@ -93,7 +105,6 @@ export class ReservationAvailabilityComponent implements OnInit {
       }
 
       // añadimos la reserva que ya sabemos es la siguiente
-      console.log('RESERVA actual');
       this.availableSlots.push({
         start: reservation.start_time,
         end: reservation.end_time,
@@ -105,7 +116,6 @@ export class ReservationAvailabilityComponent implements OnInit {
 
     // Verificar si hay espacio libre después de la última reserva
     if (previousEndTime < endOfDay) {
-      console.log('hay espacio libre despues de la ultima reserva!', previousEndTime, '<', endOfDay);
       this.availableSlots.push({
         start: this.minutesToTime(previousEndTime),
         end: this.minutesToTime(endOfDay),
@@ -113,7 +123,6 @@ export class ReservationAvailabilityComponent implements OnInit {
       });
     }
 
-    console.log('-');
   }
 
   // Función para convertir hora en formato HH:MM:SS a minutos
@@ -141,20 +150,7 @@ export class ReservationAvailabilityComponent implements OnInit {
     return `${hour}:${minute} ${ampm}`;
   }
 
-  //CAMBIOS POR TIPO
-
-  editReservation() {
-    // Lógica para editar la reserva
-    console.log('Editando reserva:');
-  }
-
-
-
-
-
-
-
-
+  // Para el paso a paso
   steps: string[] = ['Paso 1', 'Paso 2', 'Paso 3', 'Paso 4'];
   currentStep: number = 0;
 
@@ -222,7 +218,6 @@ export class ReservationAvailabilityComponent implements OnInit {
     if (!this.getDuration()) return 'La duración es inválida.';
     if (!this.isTimeValid()) return 'El horario debe ser entre 8:00 a.m. y 7:00 p.m. y la hora de inicio debe ser menor a la de fin.';
     if (!this.reservationDescription?.trim()) return 'La descripción es obligatoria.';
-
     return null; // Todo está bien
   }
 
@@ -247,7 +242,7 @@ export class ReservationAvailabilityComponent implements OnInit {
 
     this.reservationsService.createReservation(reservation).subscribe({
       next: (res) => {
-        const folio = res?.folio || res?.id || ''; // depende del backend, ajusta aquí si el folio viene con otro nombre
+        const folio = res?.folio || res?.id || ''; 
 
         Swal.fire({
           title: 'Reservación Exitosa',

@@ -1,8 +1,5 @@
 <app-navbar></app-navbar>
 <div *ngIf="reservationToEdit">
-
-
-
     <div class="container mt-4">
         <!-- Fila principal: Filtros y Tabla -->
         <div class="row" style="display: flex; align-items: stretch;">
@@ -47,7 +44,7 @@
                                 [(ngModel)]="reservationToEdit.end_time" (change)="validateTimeRange()">
                         </div>
                         <div class="mb-3">
-                            <p><strong>Duración:</strong> {{ formatDuration(duration) }} min.</p>
+                            <p><strong>Duración:</strong> {{ formatDuration(duration) }} hrs.</p>
                         </div>
                     </div>
 
@@ -81,7 +78,6 @@
                         <strong>Calendario de reservaciones y estado</strong>
                     </div>
                     <div class="card-body py-2">
-                        <!-- Contenedor con altura fija y scroll vertical -->
                         <div>
                             <table class="table mb-0 text-center" style="border-collapse: collapse;">
                                 <tbody>
