@@ -7,14 +7,13 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class HistoryService {
-  private apiUrl = 'http://localhost:3000/api/change-history'; // URL de tu API
+  private apiUrl = 'http://localhost:3000/api/change-history';
 
   constructor(private http: HttpClient) {}
 
   getReservationHistory(folio: string, token: string) {
     const url = `${this.apiUrl}/${folio}`; 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
     return this.http.get(url, { headers });
   }
 }

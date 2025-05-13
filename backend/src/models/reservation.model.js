@@ -156,7 +156,7 @@ const ReservationModel = {
             };
 
         } catch (error) {
-            throw error; 
+            throw error;
         }
 
     }

@@ -8,27 +8,26 @@ const SECRET_KEY = process.env.SECRET_KEY;
 const AuthController = {
     async register(req, res) {
         const { username, password, userRole } = req.body;
-    
+
         if (!username || !password || password.length < 6) {
             return res.status(400).json({ message: 'Usuario o contraseña inválidos (mínimo 6 caracteres)' });
         }
-    
+
         const allowedRoles = ['Administrador', 'Jefe de departamento'];
         if (!allowedRoles.includes(userRole)) {
             return res.status(400).json({ message: 'Rol de usuario inválido' });
         }
-    
+
         const existingUser = await UserModel.findByUsername(username);
         if (existingUser) return res.status(400).json({ message: 'Usuario ya existe' });
-    
+
         const passwordHash = await bcrypt.hash(password, 10);
         const newUser = await UserModel.create({ username, passwordHash, userRole });
-    
+
         res.status(201).json({ message: 'Usuario creado', user: { id: newUser.user_id, username, userRole } });
     },
 
     async login(req, res) {
-        console.log("login");
         const { username, password } = req.body;
 
         try {
@@ -45,7 +44,6 @@ const AuthController = {
 
             return res.json({ message: 'Login exitoso', token });
         } catch (err) {
-            console.error(err);
             return res.status(500).json({ message: 'Error en el servidor' });
         }
     }

@@ -12,7 +12,6 @@ const authenticateUser = (req, res, next) => {
         req.role = decoded.role;
         next();
     } catch (error) {
-        console.error('Error al verificar token JWT:', error);
         return res.status(401).json({ error: 'Token inválido o expirado' });
     }
 };

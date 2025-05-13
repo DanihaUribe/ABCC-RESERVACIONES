@@ -37,7 +37,7 @@ export class ReservationService {
 
   getByDateAndVenue(venue: string, date: string) {
     const url = `${this.apiUrl}/fecha/${venue}/${date}`;
-    return this.http.get<any>(url); // <-- usar la URL correcta
+    return this.http.get<any>(url);
   }
   updateReservation(folio: string, data: any, token: string) {
     const url = `${this.apiUrl}/${folio}`;

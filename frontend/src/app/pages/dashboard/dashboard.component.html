@@ -26,18 +26,13 @@
           <td>{{ reservation.reservation_date | date: 'dd/MM/yy' }}</td>
           <td>{{ formatTo12Hour(reservation.start_time) }} - {{ formatTo12Hour(reservation.end_time) }}</td>
           <td>
-            <select
-              class="form-select form-select-sm"
-              [ngClass]="{
+            <select class="form-select form-select-sm" [ngClass]="{
                 'select-aprobada': reservation.status === 'Aprobada',
                 'select-rechazada': reservation.status === 'Rechazada',
                 'select-pendiente': reservation.status === 'Pendiente'
-              }"
-              [ngModel]="reservation.status"
-              (ngModelChange)="onStatusChange(reservation, $event)">
-              <option *ngFor="let status of ['Pendiente','Aprobada','Rechazada']"
-                      [value]="status"
-                      [disabled]="status === reservation.status">
+              }" [ngModel]="reservation.status" (ngModelChange)="onStatusChange(reservation, $event)">
+              <option *ngFor="let status of ['Pendiente','Aprobada','Rechazada']" [value]="status"
+                [disabled]="status === reservation.status">
                 {{ status }}
               </option>
             </select>
@@ -77,9 +72,10 @@
 <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      
+
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="historyModalLabel">Historial de Reservación: {{ history[0]?.reservation_folio }}</h5>
+        <h5 class="modal-title" id="historyModalLabel">Historial de Reservación: {{ history[0]?.reservation_folio }}
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 

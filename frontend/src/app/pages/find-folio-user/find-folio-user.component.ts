@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { Params } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { ChangeDetectorRef } from '@angular/core';
+
 @Component({
   selector: 'app-find-folio-user',
   imports: [NavbarUserComponent, CommonModule, FormsModule],
@@ -15,7 +16,7 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class FindFolioUserComponent {
   folio: string = '';
-  foundReservation: any = null; // Variable para almacenar la reserva encontrada
+  foundReservation: any = null;
 
   constructor(
     private reservationService: ReservationService,
@@ -27,8 +28,7 @@ export class FindFolioUserComponent {
       const folioUrl = params['folio'];
       if (folioUrl) {
         this.folio = folioUrl;
-        this.buscarReserva(); // Dispara la búsqueda automáticamente
-
+        this.buscarReserva();
       }
     });
   }
@@ -52,11 +52,9 @@ export class FindFolioUserComponent {
 
     this.reservationService.getByFolioForUsers(this.folio).subscribe({
       next: (reserva: any) => {
-        console.log('Reserva recibida:', reserva);  // Log para depuración
         this.foundReservation = reserva; // Guardamos la reserva encontrada
 
         if (reserva.status === 'Cancelada') {
-          // Simulamos que no se encontró
           this.foundReservation = null;
           Swal.fire('No encontrada', 'La reservación no existe o ha sido cancelada por un administrador.', 'warning');
         } else {
@@ -74,15 +72,13 @@ export class FindFolioUserComponent {
 
         // Llamar a descargarPDF automáticamente después de un pequeño delay para asegurar que el DOM esté actualizado
         setTimeout(() => {
-          this.cdr.detectChanges(); // Detectar cambios para asegurar que el DOM esté listo
+          this.cdr.detectChanges();
           this.descargarPDF(); // Generar PDF
-        }, 500); // Puedes ajustar el tiempo si es necesario
+        }, 500);
 
       },
       error: (err) => {
-        console.error('Error al buscar la reserva:', err);  // Log del error
-        this.foundReservation = null; // Reiniciamos la variable en caso de error
-
+        this.foundReservation = null;
         Swal.fire({
           toast: true,
           position: 'top-end',

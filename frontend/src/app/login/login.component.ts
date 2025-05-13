@@ -30,8 +30,6 @@ export class LoginComponent {
       const credentials = this.loginForm.value;
       this.authService.login(credentials).subscribe({
         next: (response: any) => {
-          console.log('Login exitoso:', response);
-
           localStorage.setItem('token', response.token);
 
           const payload = JSON.parse(atob(response.token.split('.')[1]));
