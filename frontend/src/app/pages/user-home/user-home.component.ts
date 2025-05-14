@@ -1,19 +1,19 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NavbarUserComponent } from '../../shared/navbar-user/navbar-user.component';
 import { VenueService } from '../../services/venue/venue.service';
 import { ReservationService } from '../../services/reservation/reservation.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-user-home',
+  standalone: true,
   imports: [NavbarUserComponent, CommonModule, FormsModule],
   templateUrl: './user-home.component.html',
   styleUrl: './user-home.component.scss'
 })
 export class UserHomeComponent implements OnInit {
-
-  reservations: any[] = [];
   reservationsByDate: any[] = [];
   venues: any[] = [];
   selectedVenue: any;
@@ -27,16 +27,13 @@ export class UserHomeComponent implements OnInit {
     return `${year}-${month}-${day}`;
   })();
 
-  // Esta será usada como límite mínimo en el input, y no cambia
   minDate: string = this.today;
-
-  availableSlots: any[] = []; // Para almacenar los intervalos disponibles
+  availableSlots: any[] = [];
 
   constructor(
     private venueService: VenueService,
     private reservationsService: ReservationService
-  ) { }
-
+  ) {}
 
   ngOnInit(): void {
     this.venueService.getAllVenues().subscribe(
@@ -44,7 +41,8 @@ export class UserHomeComponent implements OnInit {
         this.venues = data;
         this.selectedVenue = this.venues[0];
         this.loadReservations();
-        console.log('termino de cargar la info');
+
+        setInterval(() => this.loadReservations(), 10000);
       },
       (error) => {
         Swal.fire({
@@ -66,7 +64,7 @@ export class UserHomeComponent implements OnInit {
       (error) => {
         Swal.fire({
           icon: 'error',
-          title: 'Error al cargar obtener reservas',
+          title: 'Error al obtener reservas',
           text: 'No se pudieron obtener las reservas. Intenta nuevamente más tarde.',
           confirmButtonText: 'Aceptar'
         });
@@ -74,42 +72,33 @@ export class UserHomeComponent implements OnInit {
     );
   }
 
-  // Función para calcular los intervalos disponibles entre las reservas
   calculateAvailableSlots() {
-    const startOfDay = 8 * 60; // 480 minutos (8:00 a.m.)
-    const endOfDay = 19 * 60; // 1140 minutos (7:00 p.m.)
-    let previousEndTime = startOfDay; // Hora de fin de la última reserva procesada (inicia a las 8 AM)
+    const startOfDay = 8 * 60; // 08:00
+    const endOfDay = 19 * 60;  // 19:00
+    let previousEndTime = startOfDay;
+    this.availableSlots = [];
 
-    this.availableSlots = []; // Limpiar los intervalos anteriores
+    for (let reservation of this.reservationsByDate) {
+      const start = this.timeToMinutes(reservation.start_time);
+      const end = this.timeToMinutes(reservation.end_time);
 
-    // Iterar por las reservas y encontrar intervalos libres, al llegar al final se sale
-    for (let i = 0; i < this.reservationsByDate.length; i++) {
-
-      const reservation = this.reservationsByDate[i];
-      const reservationStartTime = this.timeToMinutes(reservation.start_time);
-      const reservationEndTime = this.timeToMinutes(reservation.end_time);
-
-      // si nuestra primera reserva no es a las 8, no sera  menor por lo que entrara
-      //de ser a las 8 se lo salta
-      if (reservationStartTime > previousEndTime) {
+      if (start > previousEndTime) {
         this.availableSlots.push({
           start: this.minutesToTime(previousEndTime),
-          end: this.minutesToTime(reservationStartTime),
+          end: this.minutesToTime(start),
           status: 'Disponible'
         });
       }
 
-      // añadimos la reserva que ya sabemos es la siguiente
       this.availableSlots.push({
         start: reservation.start_time,
         end: reservation.end_time,
         status: reservation.status
       });
 
-      previousEndTime = reservationEndTime; // Actualizamos la hora de finalización de la última reserva
+      previousEndTime = end;
     }
 
-    // Verificar si hay espacio libre después de la última reserva
     if (previousEndTime < endOfDay) {
       this.availableSlots.push({
         start: this.minutesToTime(previousEndTime),
@@ -119,13 +108,11 @@ export class UserHomeComponent implements OnInit {
     }
   }
 
-  // Función para convertir hora en formato HH:MM:SS a minutos
   timeToMinutes(time: string): number {
-    const [hours, minutes] = time.split(':').map(num => parseInt(num));
+    const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
   }
 
-  // Función para convertir minutos a hora en formato HH:MM:SS
   minutesToTime(minutes: number): string {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -137,13 +124,7 @@ export class UserHomeComponent implements OnInit {
     let hour = parseInt(hourStr, 10);
     const minute = minuteStr;
     const ampm = hour >= 12 ? 'PM' : 'AM';
-
-    hour = hour % 12;
-    hour = hour ? hour : 12; // 0 => 12
-
+    hour = hour % 12 || 12;
     return `${hour}:${minute} ${ampm}`;
   }
-
-
-
 }
