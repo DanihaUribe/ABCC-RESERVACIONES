@@ -50,11 +50,11 @@ Portal Empleados
     - POST verificar que la solicitud sea valida y guarda 
 
 Consultar
-- POST todos los datos de reservación por folio
+- GET todos los datos de reservación por folio, ignora las reservas canceladas en la pagina pero da un aviso diferente
 
 Portal de administradores
 POST /login (autenticación con JWT).
-GET /logout (cierre de sesión).
+-(cierre de sesión).
 
     Tabla de gestionar
     - GET a todas las reservas con todos sus datos
